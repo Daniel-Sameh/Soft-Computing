@@ -25,7 +25,7 @@ public class IntegerChromosome implements Chromosome<Integer> {
 
     @Override
     public int length() {
-        return 0;
+        return genes.size();
     }
 
     @Override
