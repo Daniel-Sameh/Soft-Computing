@@ -16,7 +16,7 @@ public class Main {
                 .chromosomeSize(50)
                 .build();
         GeneticAlgorithmEngine engine = new GeneticAlgorithmEngine(config);
-        engine.run();
+//        engine.run();
     }
 
 }

@@ -1,7 +1,9 @@
 package fcai.sclibrary.ga.chromosome.factory;
 
 import fcai.sclibrary.ga.chromosome.Chromosome;
+import fcai.sclibrary.ga.chromosome.FitnessFunction;
 import fcai.sclibrary.ga.chromosome.IntegerChromosome;
+import fcai.sclibrary.usecases.artisticImageApproximation.MeanSquareError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,13 +15,13 @@ public class IntegerChromosomeFactory implements ChromosomeFactory<Integer> {
 
 
     @Override
-    public Chromosome createRandomChromosome(int size, Range<Integer> range) {
+    public Chromosome<Integer> createRandomChromosome(int size, Range<Integer> range, FitnessFunction<Integer> fitnessFunction) {
         Integer lower = range.getLower();
         Integer upper = range.getUpper();
         List<Integer> genes = new ArrayList<>();
         for (int i = 0; i < size; ++i) {
             genes.add(random.nextInt(upper - lower + 1) + lower);
         }
-        return new IntegerChromosome(genes);
+        return new IntegerChromosome(genes, fitnessFunction);
     }
 }

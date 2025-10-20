@@ -7,13 +7,20 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class IntegerChromosome implements Chromosome {
+public class IntegerChromosome implements Chromosome<Integer> {
 
     private List<Integer> genes;
+    private FitnessFunction<Integer> fitnessFunction;
+    private Double fitness;
+
+    public IntegerChromosome(List<Integer> genes, FitnessFunction<Integer> fitnessFunction) {
+        this.genes = genes;
+        this.fitnessFunction = fitnessFunction;
+    }
 
     @Override
-    public Chromosome copy() {
-        return new IntegerChromosome(List.copyOf(this.genes));
+    public Chromosome<Integer> copy() {
+        return new IntegerChromosome(List.copyOf(this.genes), fitnessFunction, fitness);
     }
 
     @Override
@@ -24,5 +31,18 @@ public class IntegerChromosome implements Chromosome {
     @Override
     public List<Integer> getGenes() {
         return genes;
+    }
+
+    @Override
+    public void setGenes(List<Integer> genes) {
+        this.genes = genes;
+    }
+
+    @Override
+    public double getFitness() {
+        if  (fitness == null) {
+            fitness = fitnessFunction.evaluate(this);
+        }
+        return fitness;
     }
 }
