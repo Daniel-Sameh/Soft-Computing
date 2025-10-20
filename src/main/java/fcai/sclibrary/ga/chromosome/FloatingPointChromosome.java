@@ -39,9 +39,22 @@ public class FloatingPointChromosome implements Chromosome<Double>{
 
     @Override
     public double getFitness() {
-        if (fitnessFunction == null) {
+        if (fitness == null) {
             fitness = fitnessFunction.evaluate(this);
         }
         return fitness;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FloatingPointChromosome)) return false;
+        FloatingPointChromosome that = (FloatingPointChromosome) o;
+        return genes.equals(that.genes);
+    }
+
+    @Override
+    public int hashCode() {
+        return genes.hashCode();
     }
 }
