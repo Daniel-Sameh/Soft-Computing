@@ -24,7 +24,7 @@ public class FloatingPointChromosome implements Chromosome<Double>{
 
     @Override
     public int length() {
-        return 0;
+        return genes.size();
     }
 
     @Override
