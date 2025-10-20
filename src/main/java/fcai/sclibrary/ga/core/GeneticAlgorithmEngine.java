@@ -3,6 +3,7 @@ package fcai.sclibrary.ga.core;
 import fcai.sclibrary.ga.chromosome.BinaryChromosome;
 import fcai.sclibrary.ga.chromosome.Chromosome;
 import fcai.sclibrary.ga.chromosome.factory.ChromosomeFactory;
+import fcai.sclibrary.usecases.artisticImageApproximation.MeanSquareError;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
@@ -20,12 +21,12 @@ public class GeneticAlgorithmEngine {
     public GeneticAlgorithmEngine(GAConfig config){
         this.config = config;
         for (int i = 0; i < config.getPopulationSize(); i++) {
-            population.add(chromosomeFactory.createRandomChromosome(config.getChromosomeSize(), config.getRange()));
+            population.add(chromosomeFactory.createRandomChromosome(config.getChromosomeSize(), config.getRange(), new MeanSquareError()));
         }
     }
 
     ///TODO: Implement this function
-    public Chromosome run(){
-        return new BinaryChromosome(List.of());
-    }
+//    public Chromosome run(){
+//        return new BinaryChromosome(List.of());
+//    }
 }
