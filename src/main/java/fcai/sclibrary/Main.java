@@ -15,6 +15,11 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello world!");
+        BinaryChromosomeFactory factory = new BinaryChromosomeFactory();
+
+        Chromosome<Integer> chromosome = factory.createRandomChromosome(10, new Range<Integer>(0, 1), null);
+        Mutation<Integer> m = new FlipMutation();
+        m.mutate(chromosome, 0.5, new Range<Integer>(0, 1));
+
     }
 }

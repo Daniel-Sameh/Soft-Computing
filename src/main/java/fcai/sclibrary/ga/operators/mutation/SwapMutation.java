@@ -7,10 +7,10 @@ import fcai.sclibrary.ga.chromosome.factory.Range;
 import java.util.List;
 import java.util.Random;
 
-public class SwapMutation implements Mutation{
+public class SwapMutation<T extends Number> implements Mutation<T>{
     @Override
-    public void mutate(Chromosome chromosome, int pm, Range range) {
-        List<Integer> genes = chromosome.getGenes();
+    public Chromosome<T> mutate(Chromosome<T> chromosome, double pm, Range<T> range) {
+        List<T> genes = chromosome.getGenes();
         double min = 0.0;
         double max = 1.0;
         Random rand = new Random();
@@ -20,11 +20,18 @@ public class SwapMutation implements Mutation{
 
         int r1 = minI + (rand.nextInt() * (maxI - minI));
         int r2 = minI + (rand.nextInt() * (maxI - minI));
+        boolean changed = false;
 
         if(r <= pm) {
-            int tmp = genes.get(r1);
+            changed = true;
+            T tmp = genes.get(r1);
             genes.set(r1, genes.get(r2));
             genes.set(r2, tmp);
         }
+        chromosome.setGenes(genes);
+        if(!changed)
+            return null;
+        else
+            return chromosome;
     }
 }

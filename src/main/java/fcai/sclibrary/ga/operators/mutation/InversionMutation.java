@@ -7,10 +7,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class InversionMutation implements Mutation {
+public class InversionMutation<T extends Number> implements Mutation<T> {
     @Override
-    public void mutate(Chromosome chromosome, int pm, Range range){
-        List<Integer> genes = chromosome.getGenes();
+    public Chromosome<T> mutate(Chromosome<T> chromosome, double pm, Range<T> range){
+        List<T> genes = chromosome.getGenes();
         double min = 0.0;
         double max = 1.0;
         Random rand = new Random();
@@ -20,11 +20,17 @@ public class InversionMutation implements Mutation {
 
         int r1 = minI + (rand.nextInt() * (maxI - minI));
         int r2 = minI + (rand.nextInt() * (maxI - minI));
-
+        boolean changed = false;
         if(r <= pm) {
+            changed = true;
             for(int i = r1; i <= r2 / 2; i++) {
                 Collections.swap(genes, i, r2 - i);
             }
         }
+        chromosome.setGenes(genes);
+        if(!changed)
+            return null;
+        else
+            return chromosome;
     }
 }
