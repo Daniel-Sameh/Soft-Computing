@@ -85,4 +85,27 @@ public class TournamentSelectionTest {
 
         assert probability < 0.3 : "Lowest fitness individual should have noticeably lower selection probability in tournaments";
     }
+
+    @Test
+    void testGettingAllPopulation(){
+        List<BinaryChromosome> selected = selection.select(population, population.size(), fitnessFunction);
+        System.out.println("Selected size: " + selected.size());
+        for (BinaryChromosome chr : selected) {
+            System.out.println("Chromosome fitness: " + chr.getFitness());
+        }
+        assert selected.size() == population.size() : "Should select all individuals when requested number equals population size";
+    }
+
+    @Test
+    void testGetAllPopulationHighestFitness() {
+        List<BinaryChromosome> selected = selection.select(population, population.size(), fitnessFunction);
+        long countHighestFitness = selected.stream()
+                .filter(chr -> chr.getFitness() == 10.0)
+                .count();
+        System.out.println("Number of times highest fitness (10.0) appears: " + countHighestFitness);
+        assert countHighestFitness > 0 : "Highest fitness individual should appear at least once";
+        assert countHighestFitness < population.size() : "Highest fitness individual should not be selected for all positions";
+      }
+
+
 }
