@@ -49,4 +49,17 @@ public class BinaryChromosome implements Chromosome<Integer>{
         }
         return fitness;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof BinaryChromosome)) return false;
+        BinaryChromosome that = (BinaryChromosome) o;
+        return genes.equals(that.genes);
+    }
+
+    @Override
+    public int hashCode() {
+        return genes.hashCode();
+    }
 }
