@@ -1,48 +1,58 @@
 package fcai.sclibrary.usecases.artisticImageApproximation;
+
+import fcai.sclibrary.ga.chromosome.Chromosome;
+import fcai.sclibrary.ga.chromosome.IntegerChromosome;
+import fcai.sclibrary.ga.chromosome.factory.ChromosomeFactory;
+import fcai.sclibrary.ga.chromosome.factory.IntegerChromosomeFactory;
+import fcai.sclibrary.ga.chromosome.factory.Range;
+import fcai.sclibrary.ga.core.GAConfig;
+import fcai.sclibrary.ga.core.GAProgressListener;
+import fcai.sclibrary.ga.core.GeneticAlgorithmEngine;
+import fcai.sclibrary.ga.core.Optimization;
+import fcai.sclibrary.ga.operators.crossover.NPointCrossover;
+import fcai.sclibrary.ga.operators.crossover.SinglePointCrossover;
+import fcai.sclibrary.ga.operators.mutation.*;
+import fcai.sclibrary.ga.operators.replacement.ElitistReplacement;
+import fcai.sclibrary.ga.operators.replacement.SteadyStateReplacement;
+import fcai.sclibrary.ga.operators.replacement.functions.CutoffFunction;
+import fcai.sclibrary.ga.operators.selection.RankSelection;
+import fcai.sclibrary.ga.operators.selection.TournamentSelection;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
-/**
- * A simple and effective Java Swing UI for the Artistic Image Approximation project.
- * This UI uses a SwingWorker to run the genetic algorithm in the background,
- * ensuring the UI remains responsive and updates with the latest generated image.
- */
 public class ArtisticApproximationUI extends JFrame {
-
-    // --- UI Components ---
     private JButton loadImageButton;
     private JButton startButton;
+    private JButton stopButton;
     private JLabel targetImageLabel;
     private JLabel generatedImageLabel;
     private JLabel generationLabel;
     private JLabel fitnessLabel;
     private JProgressBar progressBar;
 
-    // --- Image Data ---
     private BufferedImage targetImage;
+    private GeneticAlgorithmEngine gaEngine;
+    private volatile boolean isRunning = false;
 
-    // --- GA Parameters (for demonstration) ---
     private static final int MAX_GENERATIONS = 10000;
+    private static final int POPULATION_SIZE = 50;
+    private static final double MUTATION_RATE = 0.001;
+    private static final double CROSSOVER_RATE = 0.9;
 
     public ArtisticApproximationUI() {
         super("Artistic Image Approximation GA");
-
-        // --- Basic Window Setup ---
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1000, 600);
-        setLocationRelativeTo(null); // Center the window
-
-        // --- UI Initialization ---
+        setSize(1100, 700);
+        setLocationRelativeTo(null);
         initUI();
 
-        // Use the system's look and feel for a modern appearance
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             SwingUtilities.updateComponentTreeUI(this);
@@ -52,18 +62,12 @@ public class ArtisticApproximationUI extends JFrame {
     }
 
     private void initUI() {
-        // --- Main Panels ---
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JPanel controlPanel = createControlPanel();
-        JPanel imagePanel = createImagePanel();
-        JPanel statusPanel = createStatusPanel();
-
-        // --- Add Panels to Frame ---
-        mainPanel.add(controlPanel, BorderLayout.NORTH);
-        mainPanel.add(imagePanel, BorderLayout.CENTER);
-        mainPanel.add(statusPanel, BorderLayout.SOUTH);
+        mainPanel.add(createControlPanel(), BorderLayout.NORTH);
+        mainPanel.add(createImagePanel(), BorderLayout.CENTER);
+        mainPanel.add(createStatusPanel(), BorderLayout.SOUTH);
 
         add(mainPanel);
     }
@@ -72,14 +76,18 @@ public class ArtisticApproximationUI extends JFrame {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         loadImageButton = new JButton("Load Target Image...");
         startButton = new JButton("Start Genetic Algorithm");
-        startButton.setEnabled(false); // Disabled until an image is loaded
+        stopButton = new JButton("Stop");
+
+        startButton.setEnabled(false);
+        stopButton.setEnabled(false);
 
         panel.add(loadImageButton);
         panel.add(startButton);
+        panel.add(stopButton);
 
-        // --- Action Listeners ---
-        loadImageButton.addActionListener(this::loadImageAction);
-        startButton.addActionListener(this::startGaAction);
+        loadImageButton.addActionListener(e -> loadImageAction());
+        startButton.addActionListener(e -> startGaAction());
+        stopButton.addActionListener(e -> stopGaAction());
 
         return panel;
     }
@@ -87,17 +95,15 @@ public class ArtisticApproximationUI extends JFrame {
     private JPanel createImagePanel() {
         JPanel panel = new JPanel(new GridLayout(1, 2, 10, 10));
 
-        // Target Image Panel
         JPanel targetPanel = new JPanel(new BorderLayout());
         targetPanel.setBorder(new TitledBorder("Target Image"));
         targetImageLabel = new JLabel("Please load an image.", SwingConstants.CENTER);
-        targetPanel.add(targetImageLabel, BorderLayout.CENTER);
+        targetPanel.add(new JScrollPane(targetImageLabel), BorderLayout.CENTER);
 
-        // Generated Image Panel
         JPanel generatedPanel = new JPanel(new BorderLayout());
         generatedPanel.setBorder(new TitledBorder("Generated Approximation"));
         generatedImageLabel = new JLabel("Waiting to start...", SwingConstants.CENTER);
-        generatedPanel.add(generatedImageLabel, BorderLayout.CENTER);
+        generatedPanel.add(new JScrollPane(generatedImageLabel), BorderLayout.CENTER);
 
         panel.add(targetPanel);
         panel.add(generatedPanel);
@@ -106,58 +112,65 @@ public class ArtisticApproximationUI extends JFrame {
     }
 
     private JPanel createStatusPanel() {
-        JPanel panel = new JPanel(new GridLayout(1, 3, 10, 10));
-        generationLabel = new JLabel("Generation: 0");
-        fitnessLabel = new JLabel("Best Error: N/A");
-        progressBar = new JProgressBar(0, MAX_GENERATIONS);
+        JPanel panel = new JPanel(new GridLayout(2, 1, 5, 5));
 
-        panel.add(generationLabel);
-        panel.add(fitnessLabel);
+        JPanel metricsPanel = new JPanel(new GridLayout(1, 2, 10, 10));
+        generationLabel = new JLabel("Generation: 0");
+        fitnessLabel = new JLabel("Best MSE: N/A");
+        metricsPanel.add(generationLabel);
+        metricsPanel.add(fitnessLabel);
+
+        progressBar = new JProgressBar(0, MAX_GENERATIONS);
+        progressBar.setStringPainted(true);
+
+        panel.add(metricsPanel);
         panel.add(progressBar);
 
         return panel;
     }
 
-    // --- Action Handler Methods ---
-
-    private void loadImageAction(ActionEvent e) {
+    public void loadImageAction() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Select an Image File");
         int result = fileChooser.showOpenDialog(this);
+
         if (result == JFileChooser.APPROVE_OPTION) {
             try {
                 File selectedFile = fileChooser.getSelectedFile();
                 targetImage = ImageIO.read(selectedFile);
 
-                // Display the loaded image
-                Image scaledImage = targetImage.getScaledInstance(400, -1, Image.SCALE_SMOOTH);
+                Image scaledImage = targetImage.getScaledInstance(500, -1, Image.SCALE_SMOOTH);
                 targetImageLabel.setIcon(new ImageIcon(scaledImage));
                 targetImageLabel.setText(null);
 
-                // Enable the start button
                 startButton.setEnabled(true);
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error loading image: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        "Error loading image: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
-    private void startGaAction(ActionEvent e) {
-        if (targetImage == null) return;
+    private void startGaAction() {
+        if (targetImage == null || isRunning) return;
 
-        // Disable buttons to prevent multiple runs
         startButton.setEnabled(false);
         loadImageButton.setEnabled(false);
+        stopButton.setEnabled(true);
+        isRunning = true;
 
-        // Start the GA on a background thread
         GeneticAlgorithmWorker worker = new GeneticAlgorithmWorker();
         worker.execute();
     }
 
+    private void stopGaAction() {
+        if (gaEngine != null) {
+            gaEngine.stop();
+        }
+        stopButton.setEnabled(false);
+    }
 
-    /**
-     * A helper class to pass results from the GA worker thread to the UI thread.
-     */
     private static class GenerationResult {
         final int generation;
         final double fitness;
@@ -170,106 +183,118 @@ public class ArtisticApproximationUI extends JFrame {
         }
     }
 
-    /**
-     * The SwingWorker class that runs the genetic algorithm in the background.
-     */
-    private class GeneticAlgorithmWorker extends SwingWorker<Void, GenerationResult> {
+    private class GeneticAlgorithmWorker extends SwingWorker<Chromosome<?>, GenerationResult>
+            implements GAProgressListener {
+
+        private final int width;
+        private final int height;
+
+        public GeneticAlgorithmWorker() {
+            this.width = targetImage.getWidth();
+            this.height = targetImage.getHeight();
+        }
 
         @Override
-        protected Void doInBackground() throws Exception {
-            // =================================================================
-            // == YOUR GENETIC ALGORITHM INITIALIZATION LOGIC GOES HERE ==
-            //
-            // Example:
-            // Population population = new Population(POPULATION_SIZE, targetImage);
-            // population.initialize();
-            // =================================================================
-
-            for (int gen = 1; gen <= MAX_GENERATIONS; gen++) {
-                // =================================================================
-                // == YOUR GA'S GENERATION LOGIC GOES HERE ==
-                //
-                // 1. Evaluate fitness of the population
-                //    population.evaluateFitness();
-                //
-                // 2. Select parents and create the next generation
-                //    population.createNewGeneration();
-                //
-                // 3. Get the best individual from the current population
-                //    Individual bestIndividual = population.getFittest();
-                //    double bestFitness = bestIndividual.getFitness();
-                //    BufferedImage bestImage = bestIndividual.render();
-                // =================================================================
-
-
-                // --- For Demonstration: Create a fake result ---
-                // Replace this with your actual GA logic.
-                double bestFitness = 1000.0 / gen; // Fake fitness that improves over time
-                BufferedImage bestImage = createPlaceholderImage(gen); // Fake image
-
-
-                // Publish the intermediate result to the UI thread
-                publish(new GenerationResult(gen, bestFitness, bestImage));
-
-                // Allow the event thread to process updates
-                Thread.sleep(10);
+        protected Chromosome<?> doInBackground() throws Exception {
+            // Convert target image to genes
+            List<Integer> targetGenes = new ArrayList<>();
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    int pixel = targetImage.getRGB(x, y);
+                    targetGenes.add(Utils.pixelToGene(pixel));
+                }
             }
-            return null;
+
+            // Create fitness function
+            MeanSquareError fitnessFunction = new MeanSquareError(targetGenes);
+
+            ChromosomeFactory<Integer> imageFactory = new ImageChromosomeFactory(targetGenes, 0.3);
+//            ChromosomeFactory<Integer> imageFactory = new IntegerChromosomeFactory();
+
+            // Build GA configuration
+            GAConfig<IntegerChromosome, Integer> config = GAConfig.<IntegerChromosome, Integer>builder()
+                    .chromosomeSize(width * height)
+                    .range(new Range<>(0, 0xFFFFFF))
+                    .chromosomeFactory(imageFactory)
+                    .fitnessFunction(fitnessFunction)
+                    .selectionStrategy(new RankSelection<>())
+                    .mutation(new PixelMutation())
+                    .crossover(new SinglePointCrossover<Integer>())
+                    .populationSize(POPULATION_SIZE)
+                    .generations(MAX_GENERATIONS)
+                    .mutationRate(MUTATION_RATE)
+                    .crossoverRate(CROSSOVER_RATE)
+                    .optimization(Optimization.MINIMIZE)
+                    .replacement(new SteadyStateReplacement<>())
+                    .build();
+
+            // Create and configure engine
+            gaEngine = new GeneticAlgorithmEngine(config);
+            gaEngine.addListener(this);
+
+            // Run GA
+            return gaEngine.run();
+        }
+
+        @Override
+        public void onGenerationComplete(int generation, List<Chromosome<?>> population,
+                                         Chromosome<?> bestChromosome) {
+            if (bestChromosome == null) return;
+
+            // Render best chromosome
+            BufferedImage rendered = ImageRenderer.renderChromosome(
+                    (Chromosome<Integer>) bestChromosome, width, height);
+//            System.out.println("Generation " + generation +
+//                    " - Best MSE: " + bestChromosome.getFitness());
+            // Publish to UI thread
+            publish(new GenerationResult(generation, bestChromosome.getFitness(), rendered));
+        }
+
+        @Override
+        public void onComplete(Chromosome<?> finalBest) {
+            // Will be handled in done()
         }
 
         @Override
         protected void process(List<GenerationResult> chunks) {
-            // This method runs on the UI thread and receives results from publish()
-            GenerationResult latestResult = chunks.get(chunks.size() - 1);
+            // Get latest result
+            GenerationResult latest = chunks.get(chunks.size() - 1);
 
-            // Update UI components
-            generationLabel.setText("Generation: " + latestResult.generation);
-            fitnessLabel.setText(String.format("Best Error: %.4f", latestResult.fitness));
-            progressBar.setValue(latestResult.generation);
+            // Update UI
+            generationLabel.setText("Generation: " + latest.generation);
+            fitnessLabel.setText(String.format("Best MSE: %.2f", latest.fitness));
+            progressBar.setValue(latest.generation);
 
-            Image scaledImage = latestResult.image.getScaledInstance(400, -1, Image.SCALE_SMOOTH);
-            generatedImageLabel.setIcon(new ImageIcon(scaledImage));
-            generatedImageLabel.setText(null);
+            if (latest.image != null) {
+                Image scaled = latest.image.getScaledInstance(500, -1, Image.SCALE_SMOOTH);
+                generatedImageLabel.setIcon(new ImageIcon(scaled));
+                generatedImageLabel.setText(null);
+            }
         }
 
         @Override
         protected void done() {
-            // This method runs on the UI thread after the GA finishes
+            isRunning = false;
+            startButton.setEnabled(true);
+            loadImageButton.setEnabled(true);
+            stopButton.setEnabled(false);
+
             try {
-                get(); // To catch any exceptions from doInBackground
+                Chromosome<?> result = get();
                 JOptionPane.showMessageDialog(ArtisticApproximationUI.this,
-                        "Genetic Algorithm finished!", "Complete", JOptionPane.INFORMATION_MESSAGE);
-            } catch (InterruptedException | ExecutionException e) {
+                        String.format("GA completed!\nFinal MSE: %.2f",
+                                result != null ? result.getFitness() : 0),
+                        "Complete", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception e) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(ArtisticApproximationUI.this,
-                        "An error occurred during execution: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            } finally {
-                // Re-enable buttons
-                startButton.setEnabled(true);
-                loadImageButton.setEnabled(true);
+                        "An error occurred: " + e.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
             }
-        }
-
-        // Helper method to create a placeholder image for demonstration
-        private BufferedImage createPlaceholderImage(int generation) {
-            if (targetImage == null) return null;
-            BufferedImage img = new BufferedImage(targetImage.getWidth(), targetImage.getHeight(), BufferedImage.TYPE_INT_RGB);
-            Graphics2D g = img.createGraphics();
-            g.setColor(new Color(240, 240, 240));
-            g.fillRect(0,0, img.getWidth(), img.getHeight());
-
-            // Draw some random "progress"
-            g.setColor(Color.BLUE);
-            g.setFont(new Font("Serif", Font.BOLD, 40));
-            g.drawString("Gen: " + generation, 50, 100);
-            g.dispose();
-            return img;
         }
     }
 
-
     public static void main(String[] args) {
-        // Run the UI on the Event Dispatch Thread (EDT) for thread safety
         SwingUtilities.invokeLater(() -> {
             ArtisticApproximationUI ui = new ArtisticApproximationUI();
             ui.setVisible(true);

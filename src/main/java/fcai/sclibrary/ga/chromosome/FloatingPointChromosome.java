@@ -39,10 +39,11 @@ public class FloatingPointChromosome implements Chromosome<Double>{
 
     @Override
     public double getFitness() {
-        if (fitness == null) {
-            fitness = fitnessFunction.evaluate(this);
-        }
-        return fitness;
+        return fitnessFunction.evaluate(this);
+//        if  (fitness == null) {
+//            fitness = fitnessFunction.evaluate(this);
+//        }
+//        return fitness;
     }
 
     @Override

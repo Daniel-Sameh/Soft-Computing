@@ -8,4 +8,5 @@ public interface Chromosome<T extends Number> {
     List<T> getGenes();
     void setGenes(List<T> genes);
     double getFitness();
+    FitnessFunction<T> getFitnessFunction();
 }

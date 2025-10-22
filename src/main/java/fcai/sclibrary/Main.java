@@ -8,6 +8,9 @@ import fcai.sclibrary.ga.chromosome.factory.ChromosomeFactory;
 import fcai.sclibrary.ga.chromosome.factory.IntegerChromosomeFactory;
 import fcai.sclibrary.ga.chromosome.factory.Range;
 import fcai.sclibrary.ga.operators.crossover.*;
+import fcai.sclibrary.ga.operators.mutation.FlipMutation;
+import fcai.sclibrary.ga.operators.mutation.Mutation;
+
 import java.util.Arrays;
 
 import java.util.ArrayList;
