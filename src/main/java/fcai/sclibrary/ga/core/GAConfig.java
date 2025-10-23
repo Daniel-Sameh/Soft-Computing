@@ -2,6 +2,7 @@ package fcai.sclibrary.ga.core;
 
 import fcai.sclibrary.ga.chromosome.Chromosome;
 import fcai.sclibrary.ga.chromosome.FitnessFunction;
+import fcai.sclibrary.ga.chromosome.InfeasibleCheck;
 import fcai.sclibrary.ga.chromosome.IntegerChromosome;
 import fcai.sclibrary.ga.chromosome.factory.ChromosomeFactory;
 import fcai.sclibrary.ga.chromosome.factory.Range;
@@ -24,6 +25,7 @@ public class GAConfig<T extends Chromosome<N>, N extends Number> {
     private final Range<N> range;
     private FitnessFunction<N> fitnessFunction;
     private ChromosomeFactory<N> chromosomeFactory;
+    private InfeasibleCheck<N> infeasibleCheck;
     @Builder.Default private final int populationSize = 100;
     @Builder.Default private final int generations = 1000;
     @Builder.Default private final double mutationRate = 0.001;

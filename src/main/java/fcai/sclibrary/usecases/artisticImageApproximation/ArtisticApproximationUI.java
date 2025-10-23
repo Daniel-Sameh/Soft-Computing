@@ -136,8 +136,19 @@ public class ArtisticApproximationUI extends JFrame {
         if (result == JFileChooser.APPROVE_OPTION) {
             try {
                 File selectedFile = fileChooser.getSelectedFile();
-                targetImage = ImageIO.read(selectedFile);
+                BufferedImage originalImage = ImageIO.read(selectedFile);
 
+                // Resize to 200*200 for faster processing
+                BufferedImage resized = new BufferedImage(200, 200, BufferedImage.TYPE_INT_RGB);
+                Graphics2D g2d = resized.createGraphics();
+                g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                        RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                g2d.drawImage(originalImage, 0, 0, 200, 200, null);
+                g2d.dispose();
+
+                targetImage = resized; // Use resized image instead
+
+                // Display scaled version (500px wide for UI)
                 Image scaledImage = targetImage.getScaledInstance(500, -1, Image.SCALE_SMOOTH);
                 targetImageLabel.setIcon(new ImageIcon(scaledImage));
                 targetImageLabel.setText(null);
@@ -150,6 +161,7 @@ public class ArtisticApproximationUI extends JFrame {
             }
         }
     }
+
 
     private void startGaAction() {
         if (targetImage == null || isRunning) return;
@@ -220,6 +232,7 @@ public class ArtisticApproximationUI extends JFrame {
                     .range(new Range<>(0, Math.max(width, 255)))
                     .chromosomeFactory(imageFactory)
                     .fitnessFunction(fitnessFunction)
+                    .infeasibleCheck(new ShapeInfeasibleCheck(width, height))
                     .selectionStrategy(new TournamentSelection<>(6))
                     .mutation(new ShapeMutation(width, height))
                     .crossover(new NPointCrossover<>(numShapes/3))

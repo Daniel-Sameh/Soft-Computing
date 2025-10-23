@@ -2,6 +2,7 @@ package fcai.sclibrary.ga.core;
 
 import fcai.sclibrary.ga.chromosome.Chromosome;
 import fcai.sclibrary.ga.chromosome.FitnessFunction;
+import fcai.sclibrary.ga.chromosome.InfeasibleCheck;
 import fcai.sclibrary.ga.chromosome.factory.ChromosomeFactory;
 import fcai.sclibrary.ga.chromosome.factory.Range;
 import fcai.sclibrary.ga.operators.crossover.Crossover;
@@ -60,6 +61,7 @@ public class GeneticAlgorithmEngine<T extends Number> {
         Mutation<T> mutation = (Mutation<T>) config.getMutation();
         Replacement<T> replacement = config.getReplacement();
         FitnessFunction<T> fitnessFunction = config.getFitnessFunction();
+        InfeasibleCheck<T> infeasibleCheck = config.getInfeasibleCheck();
         Optimization optimization = config.getOptimization();
 
         int numGenerations = config.getGenerations();
@@ -90,6 +92,15 @@ public class GeneticAlgorithmEngine<T extends Number> {
                                 chromosome,
                                 config.getMutationRate(),
                                 config.getRange());
+
+                        // Check infeasibility
+                        if (mutatedChromosome != null &&
+                            infeasibleCheck != null &&
+                            infeasibleCheck.isInfeasible(mutatedChromosome, config.getRange())) {
+                            // reject infeasible mutation
+                            return chromosome;
+                        }
+
                         return mutatedChromosome != null ? mutatedChromosome : chromosome;
                     })
                     .collect(Collectors.toList());
