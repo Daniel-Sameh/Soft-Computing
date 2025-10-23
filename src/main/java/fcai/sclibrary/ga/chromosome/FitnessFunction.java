@@ -1,5 +1,7 @@
 package fcai.sclibrary.ga.chromosome;
 
-public interface FitnessFunction<T extends Number>{
-    double evaluate(Chromosome<T> chromosome);
+import fcai.sclibrary.ga.chromosome.factory.Range;
+
+public interface FitnessFunction<T extends Object>{
+    double evaluate(Chromosome<T> chromosome, Range<Integer> range);
 }

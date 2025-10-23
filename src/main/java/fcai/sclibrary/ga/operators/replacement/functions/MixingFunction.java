@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class MixingFunction<T extends Number> implements ReplacementFunction<T> {
+public class MixingFunction<T extends Object> implements ReplacementFunction<T> {
     @Override
     public List<Chromosome<T>> select(List<Chromosome<T>> ls, int size) {
         ls.sort(Comparator.comparingDouble((Chromosome<T> c) -> c.getFitness()).reversed());

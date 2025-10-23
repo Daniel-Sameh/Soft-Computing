@@ -5,7 +5,7 @@ import fcai.sclibrary.ga.chromosome.Chromosome;
 import java.util.Comparator;
 import java.util.List;
 
-public class CutoffFunction<T extends Number> implements ReplacementFunction<T> {
+public class CutoffFunction<T extends Object> implements ReplacementFunction<T> {
     @Override
     public List<Chromosome<T>> select(List<Chromosome<T>> ls, int size) {
         ls.sort(Comparator.comparingDouble((Chromosome<T> c) -> c.getFitness()).reversed());

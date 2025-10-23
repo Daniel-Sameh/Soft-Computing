@@ -10,20 +10,26 @@ import java.util.Random;
 public class InversionMutation<T extends Number> implements Mutation<T> {
     @Override
     public Chromosome<T> mutate(Chromosome<T> chromosome, double pm, Range<T> range){
+        Random rand = new Random();
+        if (rand.nextDouble() > pm) {
+            return null; // No mutation occurs
+        }
+
+        // 1 2 3 4 5 6 7 8
+
         List<T> genes = chromosome.getGenes();
         double min = 0.0;
         double max = 1.0;
-        Random rand = new Random();
         double r = min + (rand.nextDouble() * (max - min));
         int minI = 0;
         int maxI = genes.size() - 1;
 
-        int r1 = minI + (rand.nextInt() * (maxI - minI));
-        int r2 = minI + (rand.nextInt() * (maxI - minI));
+        int r1 = rand.nextInt(genes.size());
+        int r2 = rand.nextInt(genes.size());
         boolean changed = false;
         if(r <= pm) {
             changed = true;
-            for(int i = r1; i <= r2 / 2; i++) {
+            for(int i = Math.min(r1, r2); i <= Math.max(r1, r2) / 2; i++) {
                 Collections.swap(genes, i, r2 - i);
             }
         }

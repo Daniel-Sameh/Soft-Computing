@@ -8,6 +8,9 @@ import fcai.sclibrary.ga.chromosome.factory.ChromosomeFactory;
 import fcai.sclibrary.ga.chromosome.factory.IntegerChromosomeFactory;
 import fcai.sclibrary.ga.chromosome.factory.Range;
 import fcai.sclibrary.ga.operators.crossover.*;
+import fcai.sclibrary.ga.operators.mutation.FlipMutation;
+import fcai.sclibrary.ga.operators.mutation.Mutation;
+
 import java.util.Arrays;
 
 import java.util.ArrayList;
@@ -17,7 +20,7 @@ public class Main {
     public static void main(String[] args) {
         BinaryChromosomeFactory factory = new BinaryChromosomeFactory();
 
-        Chromosome<Integer> chromosome = factory.createRandomChromosome(10, new Range<Integer>(0, 1), null);
+        Chromosome<Integer> chromosome = factory.createRandomChromosome(10, new Range<Integer>(0, 1), null, null);
         Mutation<Integer> m = new FlipMutation();
         m.mutate(chromosome, 0.5, new Range<Integer>(0, 1));
 

@@ -22,8 +22,8 @@ public class RouletteWheelSelection<T extends Chromosome<N>, N extends Number> i
                 .map(chromosome -> chromosome.getFitness())
                 .toList());
 
-        logger.info("Population size: " + population.size());
-        logger.info("Fitness list size: " + fitness.size());
+//        logger.info("Population size: " + population.size());
+//        logger.info("Fitness list size: " + fitness.size());
 
         // Cumulative fitness
         for (int i = 1; i < fitness.size(); i++) {

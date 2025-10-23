@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class GenerationalReplacement<T extends Number> implements Replacement<T> {
+public class GenerationalReplacement<T extends Object> implements Replacement<T> {
 
     private final ReplacementFunction<T> replacementFunction;
 

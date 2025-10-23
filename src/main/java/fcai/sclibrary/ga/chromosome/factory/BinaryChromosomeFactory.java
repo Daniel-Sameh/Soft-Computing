@@ -11,14 +11,14 @@ import java.util.Random;
 public class BinaryChromosomeFactory implements ChromosomeFactory<Integer> {
     Random random = new Random();
     @Override
-    public Chromosome<Integer> createRandomChromosome(int size, Range<Integer> range, FitnessFunction<Integer> fitnessFunction) {
+    public Chromosome<Integer> createRandomChromosome(int size, Range<Integer> range, Range<Integer> chromosomeRange, FitnessFunction<Integer> fitnessFunction) {
         Integer lower = range.getLower();
         Integer upper = range.getUpper();
         List<Integer> genes = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             genes.add(random.nextInt(upper - lower + 1) + lower);
         }
-        return new BinaryChromosome(genes, fitnessFunction);
+        return new BinaryChromosome(genes, fitnessFunction, chromosomeRange);
     }
 
 }
