@@ -1,22 +1,21 @@
 package fcai.sclibrary.usecases.artisticImageApproximation;
 
 import fcai.sclibrary.ga.chromosome.Chromosome;
-import fcai.sclibrary.ga.chromosome.IntegerChromosome;
 import fcai.sclibrary.ga.chromosome.factory.ChromosomeFactory;
-import fcai.sclibrary.ga.chromosome.factory.IntegerChromosomeFactory;
 import fcai.sclibrary.ga.chromosome.factory.Range;
 import fcai.sclibrary.ga.core.GAConfig;
 import fcai.sclibrary.ga.core.GAProgressListener;
 import fcai.sclibrary.ga.core.GeneticAlgorithmEngine;
 import fcai.sclibrary.ga.core.Optimization;
 import fcai.sclibrary.ga.operators.crossover.NPointCrossover;
-import fcai.sclibrary.ga.operators.crossover.SinglePointCrossover;
-import fcai.sclibrary.ga.operators.mutation.*;
 import fcai.sclibrary.ga.operators.replacement.ElitistReplacement;
-import fcai.sclibrary.ga.operators.replacement.SteadyStateReplacement;
+import fcai.sclibrary.ga.operators.replacement.GenerationalReplacement;
 import fcai.sclibrary.ga.operators.replacement.functions.CutoffFunction;
+import fcai.sclibrary.ga.operators.replacement.functions.MixingFunction;
 import fcai.sclibrary.ga.operators.selection.RankSelection;
+import fcai.sclibrary.ga.operators.selection.RouletteWheelSelection;
 import fcai.sclibrary.ga.operators.selection.TournamentSelection;
+import fcai.sclibrary.usecases.artisticImageApproximation.mutation.ShapeMutation;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -41,10 +40,10 @@ public class ArtisticApproximationUI extends JFrame {
     private GeneticAlgorithmEngine gaEngine;
     private volatile boolean isRunning = false;
 
-    private static final int MAX_GENERATIONS = 10000;
-    private static final int POPULATION_SIZE = 50;
-    private static final double MUTATION_RATE = 0.001;
-    private static final double CROSSOVER_RATE = 0.9;
+    private static final int MAX_GENERATIONS = 5000;
+    private static final int POPULATION_SIZE = 60;
+    private static final double MUTATION_RATE = 0.02;
+    private static final double CROSSOVER_RATE = 0.8;
 
     public ArtisticApproximationUI() {
         super("Artistic Image Approximation GA");
@@ -205,39 +204,42 @@ public class ArtisticApproximationUI extends JFrame {
                 }
             }
 
+            int numShapes = 1200;
+
             // Create fitness function
-            MeanSquareError fitnessFunction = new MeanSquareError(targetGenes);
+//            MeanSquareError fitnessFunction = new MeanSquareError(targetGenes);
+            ShapeMSE fitnessFunction = new ShapeMSE(targetGenes, width, height);
 
-            ChromosomeFactory<Integer> imageFactory = new ImageChromosomeFactory(targetGenes, 0.3);
+//            ChromosomeFactory<Integer> imageFactory = new ImageChromosomeFactory(targetGenes, 0.1, true);
 //            ChromosomeFactory<Integer> imageFactory = new IntegerChromosomeFactory();
+            ChromosomeFactory<Integer> imageFactory = new ShapeFactory(width, height, numShapes, targetGenes);
 
-            // Build GA configuration
-            GAConfig<IntegerChromosome, Integer> config = GAConfig.<IntegerChromosome, Integer>builder()
-                    .chromosomeSize(width * height)
-                    .range(new Range<>(0, 0xFFFFFF))
+            // GA configuration
+            GAConfig<Chromosome<Integer>, Integer> config = GAConfig.<Chromosome<Integer>, Integer>builder()
+                    .chromosomeSize(numShapes * 7) // 7 genes per shape
+                    .range(new Range<>(0, Math.max(width, 255)))
                     .chromosomeFactory(imageFactory)
                     .fitnessFunction(fitnessFunction)
-                    .selectionStrategy(new RankSelection<>())
-                    .mutation(new PixelMutation())
-                    .crossover(new SinglePointCrossover<Integer>())
+                    .selectionStrategy(new TournamentSelection<>(6))
+                    .mutation(new ShapeMutation(width, height))
+                    .crossover(new NPointCrossover<>(numShapes/3))
                     .populationSize(POPULATION_SIZE)
                     .generations(MAX_GENERATIONS)
                     .mutationRate(MUTATION_RATE)
                     .crossoverRate(CROSSOVER_RATE)
-                    .optimization(Optimization.MINIMIZE)
-                    .replacement(new SteadyStateReplacement<>())
+                    .optimization(Optimization.MAXIMIZE)
+                    .replacement(new ElitistReplacement<>(new CutoffFunction<>()))
                     .build();
 
             // Create and configure engine
-            gaEngine = new GeneticAlgorithmEngine(config);
+            gaEngine = new GeneticAlgorithmEngine<Integer>(config);
             gaEngine.addListener(this);
 
-            // Run GA
             return gaEngine.run();
         }
 
         @Override
-        public void onGenerationComplete(int generation, List<Chromosome<?>> population,
+        public void onGenerationComplete(int generation,
                                          Chromosome<?> bestChromosome) {
             if (bestChromosome == null) return;
 
@@ -246,13 +248,48 @@ public class ArtisticApproximationUI extends JFrame {
                     (Chromosome<Integer>) bestChromosome, width, height);
 //            System.out.println("Generation " + generation +
 //                    " - Best MSE: " + bestChromosome.getFitness());
+
             // Publish to UI thread
             publish(new GenerationResult(generation, bestChromosome.getFitness(), rendered));
         }
 
         @Override
         public void onComplete(Chromosome<?> finalBest) {
-            // Will be handled in done()
+            if (finalBest == null) return;
+            BufferedImage rendered = ImageRenderer.renderChromosome((Chromosome<Integer>) finalBest, width, height);
+            SwingUtilities.invokeLater(() -> {
+                JFileChooser chooser = new JFileChooser();
+                chooser.setDialogTitle("Save Final Image");
+                chooser.setSelectedFile(new File("approximation.png"));
+                chooser.addChoosableFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("PNG Image", "png"));
+                chooser.addChoosableFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("JPEG Image", "jpg", "jpeg"));
+                chooser.addChoosableFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("BMP Image", "bmp"));
+                int res = chooser.showSaveDialog(ArtisticApproximationUI.this);
+                if (res == JFileChooser.APPROVE_OPTION) {
+                    File file = chooser.getSelectedFile();
+                    String name = file.getName();
+                    String ext = "png";
+                    int idx = name.lastIndexOf('.');
+                    if (idx > 0 && idx < name.length() - 1) {
+                        ext = name.substring(idx + 1).toLowerCase();
+                    } else {
+                        String desc = chooser.getFileFilter().getDescription();
+                        if (desc.contains("JPEG")) ext = "jpg";
+                        else if (desc.contains("BMP")) ext = "bmp";
+                        file = new File(file.getAbsolutePath() + "." + ext);
+                    }
+                    try {
+                        ImageIO.write(rendered, ext.equals("jpg") ? "jpg" : ext, file);
+                        JOptionPane.showMessageDialog(ArtisticApproximationUI.this,
+                                "Saved final image to: " + file.getAbsolutePath(),
+                                "Saved", JOptionPane.INFORMATION_MESSAGE);
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(ArtisticApproximationUI.this,
+                                "Failed to save image: " + ex.getMessage(),
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            });
         }
 
         @Override

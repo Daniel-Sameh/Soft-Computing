@@ -37,7 +37,9 @@ public class PixelMutation implements Mutation<Integer> {
         }
 
         if (mutated) {
-            return new IntegerChromosome(genes, chromosome.getFitnessFunction());
+            Chromosome<Integer> res = chromosome.copy();
+            res.setGenes(genes);
+            return res;
         }
         return null;
     }

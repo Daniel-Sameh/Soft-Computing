@@ -1,6 +1,6 @@
 package fcai.sclibrary.ga.chromosome.factory;
 
-public class Range<T extends Number> {
+public class Range<T extends Object> {
     private final T lower;
     private final T upper;
 

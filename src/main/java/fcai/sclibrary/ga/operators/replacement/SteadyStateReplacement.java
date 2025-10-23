@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class SteadyStateReplacement<T extends Number> implements Replacement<T> {
+public class SteadyStateReplacement<T extends Object> implements Replacement<T> {
 
     private final ReplacementFunction<T> replacementFunction;
 

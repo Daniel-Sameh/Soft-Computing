@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Random;
 
 
-public class SinglePointCrossover<T extends Number> implements Crossover<T>{
+public class SinglePointCrossover<T extends Object> implements Crossover<T>{
     private final Random random = new Random();
     public List<Chromosome<T>> crossover(Chromosome<T> chromosome1, Chromosome<T> chromosome2, double pc){
         if(random.nextDouble()>=pc){

@@ -19,7 +19,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class GAConfig<T extends Chromosome<?>, N extends Number> {
+public class GAConfig<T extends Chromosome<N>, N extends Number> {
     private final int chromosomeSize;
     private final Range<N> range;
     private FitnessFunction<N> fitnessFunction;
@@ -33,9 +33,9 @@ public class GAConfig<T extends Chromosome<?>, N extends Number> {
 
     @Builder.Default private final Optimization optimization = Optimization.MAXIMIZE;
 
-    @Builder.Default private final SelectionStrategy<?, ?> selectionStrategy =
-            new RouletteWheelSelection<IntegerChromosome, Integer>();
-    @Builder.Default private final Crossover<?> crossover = new SinglePointCrossover<Integer>();
-    @Builder.Default private final Mutation<?> mutation = new FlipMutation();
-    @Builder.Default private final Replacement<?> replacement = new SteadyStateReplacement<>();
+    @Builder.Default private final SelectionStrategy<T, N> selectionStrategy =
+            new RouletteWheelSelection<T, N>();
+    @Builder.Default private final Crossover<N> crossover = new SinglePointCrossover<>();
+    @Builder.Default private final Mutation<Integer> mutation = new FlipMutation();
+    @Builder.Default private final Replacement<N> replacement = new SteadyStateReplacement<>();
 }

@@ -28,15 +28,15 @@ public class TournamentSelectionTest {
         fitnessFunction = Mockito.mock(FitnessFunction.class);
 
         for (int i = 0; i < 6; i++)
-            population.add((BinaryChromosome) factory.createRandomChromosome(65536, new Range<>(0,1), fitnessFunction));
+            population.add((BinaryChromosome) factory.createRandomChromosome(65536, new Range<>(0,1), new Range<>(0, 0) ,fitnessFunction));
 
         // Mock fitness function
-        Mockito.when(fitnessFunction.evaluate(population.get(0))).thenReturn(1.0);
-        Mockito.when(fitnessFunction.evaluate(population.get(1))).thenReturn(2.0);
-        Mockito.when(fitnessFunction.evaluate(population.get(2))).thenReturn(3.0);
-        Mockito.when(fitnessFunction.evaluate(population.get(3))).thenReturn(4.0);
-        Mockito.when(fitnessFunction.evaluate(population.get(4))).thenReturn(10.0);
-        Mockito.when(fitnessFunction.evaluate(population.get(5))).thenReturn(5.0);
+        Mockito.when(fitnessFunction.evaluate(population.get(0), new Range<>(0, 0))).thenReturn(1.0);
+        Mockito.when(fitnessFunction.evaluate(population.get(1), new Range<>(0, 0))).thenReturn(2.0);
+        Mockito.when(fitnessFunction.evaluate(population.get(2), new Range<>(0, 0))).thenReturn(3.0);
+        Mockito.when(fitnessFunction.evaluate(population.get(3), new Range<>(0, 0))).thenReturn(4.0);
+        Mockito.when(fitnessFunction.evaluate(population.get(4), new Range<>(0, 0))).thenReturn(10.0);
+        Mockito.when(fitnessFunction.evaluate(population.get(5), new Range<>(0, 0))).thenReturn(5.0);
     }
 
     @Test

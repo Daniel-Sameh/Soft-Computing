@@ -4,6 +4,6 @@ import fcai.sclibrary.ga.chromosome.Chromosome;
 
 import java.util.List;
 
-public interface ReplacementFunction<T extends Number> {
+public interface ReplacementFunction<T extends Object> {
     List<Chromosome<T>> select(List<Chromosome<T>> ls, int size);
 }

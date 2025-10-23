@@ -1,42 +1,44 @@
 package fcai.sclibrary.ga.core;
 
-import fcai.sclibrary.ga.chromosome.BinaryChromosome;
 import fcai.sclibrary.ga.chromosome.Chromosome;
 import fcai.sclibrary.ga.chromosome.FitnessFunction;
 import fcai.sclibrary.ga.chromosome.factory.ChromosomeFactory;
+import fcai.sclibrary.ga.chromosome.factory.Range;
 import fcai.sclibrary.ga.operators.crossover.Crossover;
 import fcai.sclibrary.ga.operators.crossover.PopulationCrossover;
 import fcai.sclibrary.ga.operators.mutation.Mutation;
 import fcai.sclibrary.ga.operators.replacement.Replacement;
 import fcai.sclibrary.ga.operators.selection.SelectionStrategy;
-import fcai.sclibrary.usecases.artisticImageApproximation.MeanSquareError;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @AllArgsConstructor
-public class GeneticAlgorithmEngine {
-    ///TODO: the crossover interface
-    ///TODO: the replacement interface
-    private ChromosomeFactory chromosomeFactory;
-    private List<Chromosome<?>> population = new ArrayList<>();
-    private GAConfig config;
+public class GeneticAlgorithmEngine<T extends Number> {
+    private ChromosomeFactory<T> chromosomeFactory;
+    private List<Chromosome<T>> population = new ArrayList<>();
+    private GAConfig<Chromosome<T>, T> config;
     private final List<GAProgressListener> listeners = new CopyOnWriteArrayList<>();
     private volatile boolean stopped = false;
 
-    public GeneticAlgorithmEngine(GAConfig config){
+    public GeneticAlgorithmEngine(GAConfig<Chromosome<T>, T> config){
         this.config = config;
         chromosomeFactory = config.getChromosomeFactory();
+
+        // Creating initial random population
         for (int i = 0; i < config.getPopulationSize(); i++) {
             population.add(chromosomeFactory.createRandomChromosome(
                     config.getChromosomeSize(),
                     config.getRange(),
+                    new Range<>(0, config.getChromosomeSize()),
                     config.getFitnessFunction()));
         }
     }
+
 
     public void addListener(GAProgressListener listener) {
         listeners.add(listener);
@@ -51,76 +53,91 @@ public class GeneticAlgorithmEngine {
     }
 
     @SuppressWarnings("unchecked")
-    public Chromosome<?> run(){
-        SelectionStrategy selection = config.getSelectionStrategy();
-        PopulationCrossover populationCrossover = new PopulationCrossover();
-        Crossover crossover = config.getCrossover();
-        Mutation mutation = config.getMutation();
-        Replacement replacement = config.getReplacement();
-        FitnessFunction fitnessFunction = config.getFitnessFunction();
+    public Chromosome<T> run(){
+        SelectionStrategy<Chromosome<T>, T> selection = config.getSelectionStrategy();
+        PopulationCrossover<T> populationCrossover = new PopulationCrossover<>();
+        Crossover<T> crossover = config.getCrossover();
+        Mutation<T> mutation = (Mutation<T>) config.getMutation();
+        Replacement<T> replacement = config.getReplacement();
+        FitnessFunction<T> fitnessFunction = config.getFitnessFunction();
         Optimization optimization = config.getOptimization();
 
         int numGenerations = config.getGenerations();
-        Chromosome<?> bestChromosome = null;
+        Chromosome<T> bestChromosome = null;
 
-        for (int generation = 0; generation < numGenerations; generation++) {
+
+        for (int generation = 0; generation<numGenerations; generation++) {
+            if(stopped) break;
+
             // Selection
-            List<Chromosome<?>> selectedPopulation = selection.select(
-                    (List)population, population.size(), fitnessFunction);
+            List<Chromosome<T>> selectedPopulation = selection.select(
+                    population, population.size(), fitnessFunction);
 
             // Crossover
-            List<Chromosome<?>> offspringPopulation= populationCrossover.crossoverPopulation(
+            List<Chromosome<T>> offspringPopulation =
+                (List<Chromosome<T>>) (List<?>) populationCrossover.crossoverPopulation(
                     selectedPopulation, crossover, config.getCrossoverRate());
 
             // Mutation
-//            List<Chromosome<?>> newChromosomes = new ArrayList<>();
-            for (int i = 0; i < offspringPopulation.size(); i++) {
-                Chromosome<?> chromosome = offspringPopulation.get(i);
-                Chromosome<?> mutatedChromosome = mutation.mutate(
-                        chromosome,
-                        config.getMutationRate(),
-                        config.getRange());
-                if(mutatedChromosome != null){
-                    offspringPopulation.set(i, mutatedChromosome);
-                }
+            if (offspringPopulation != null) {
+                final List<Chromosome<T>> source = offspringPopulation;
+                int size = source.size();
+                offspringPopulation = IntStream.range(0, size)
+                    .parallel()
+                    .mapToObj(i -> {
+                        Chromosome<T> chromosome = source.get(i);
+                        Chromosome<T> mutatedChromosome = mutation.mutate(
+                                chromosome,
+                                config.getMutationRate(),
+                                config.getRange());
+                        return mutatedChromosome != null ? mutatedChromosome : chromosome;
+                    })
+                    .collect(Collectors.toList());
             }
 
+            // Pass parent count
+            int parentCount = Math.max(1, config.getPopulationSize() / 5);
             population = replacement.replace(
-                    (List) population,
-                    (List) offspringPopulation,
-                    10);
+                    population,
+                    offspringPopulation != null ? offspringPopulation : new ArrayList<>(),
+                    parentCount);
 
-
-            Chromosome<?> currentBest = getBestChromosome(population, optimization);
-
-            if (bestChromosome == null ||
-                    (currentBest!=null && currentBest.getFitness()>bestChromosome.getFitness())) {
+            // Get best chromosome
+            Chromosome<T> currentBest = getBestChromosome(population, optimization);
+            if (currentBest != null &&
+                (bestChromosome == null || isBetter(currentBest, bestChromosome, optimization))) {
                 bestChromosome = currentBest;
             }
 
-            // Notify listeners about progress
+            // Notify listeners
             final int gen = generation;
-            final Chromosome<?> bestInGen = currentBest;
-            listeners.forEach(listener -> listener.onGenerationComplete(gen, population, bestInGen));
+            final Chromosome<T> bestInGen = bestChromosome;
+            listeners.forEach(listener -> listener.onGenerationComplete(gen, bestInGen));
         }
 
-        final Chromosome<?> finalBestChromosome = bestChromosome;
+
+        final Chromosome<T> finalBestChromosome = bestChromosome;
         listeners.forEach(listener -> listener.onComplete(finalBestChromosome));
 
         return finalBestChromosome;
     }
 
-    private Chromosome<?> getBestChromosome(List<Chromosome<?>> population, Optimization optimization){
-        return population.stream()
+
+    private Chromosome<T> getBestChromosome(List<Chromosome<T>> population, Optimization optimization){
+        if (population == null || population.isEmpty()){
+            return null;
+        }
+
+        if(optimization == Optimization.MAXIMIZE){
+            return population.stream()
                 .max((c1, c2) -> Double.compare(c1.getFitness(), c2.getFitness()))
                 .orElse(null);
-//        if(optimization == Optimization.MAXIMIZE){
-//        }
-//        else{
-//            return population.stream()
-//                    .min((c1, c2) -> Double.compare(c1.getFitness(), c2.getFitness()))
-//                    .orElse(null);
-//        }
+        }
+        else{
+            return population.stream()
+                .min((c1, c2) -> Double.compare(c1.getFitness(), c2.getFitness()))
+                .orElse(null);
+        }
     }
 
     private boolean isBetter(Chromosome<?> c1, Chromosome<?> c2, Optimization optimization){
