@@ -46,32 +46,32 @@ public class ShapeMutation implements Mutation<Integer> {
                         genes.set(base, clamp(x + random.nextInt(-30, 31), 0, width));
                         break;
 
-                    case 1: // Y position - small adjustment
+                    case 1: // Y position
                         int y = genes.get(base + 1);
                         genes.set(base + 1, clamp(y + random.nextInt(-30, 31), 0, height));
                         break;
 
-                    case 2: // Radius - small adjustment
+                    case 2: // Radius
                         int radius = genes.get(base + 2);
                         genes.set(base + 2, clamp(radius + random.nextInt(-10, 11), 5, Math.min(width, height) / 4));
                         break;
 
-                    case 3: // Red - Gaussian noise
+                    case 3: // Red
                         int red = genes.get(base + 3);
                         genes.set(base + 3, clamp(red + (int)(random.nextGaussian() * 20), 0, 255));
                         break;
 
-                    case 4: // Green - Gaussian noise
+                    case 4: // Green
                         int green = genes.get(base + 4);
                         genes.set(base + 4, clamp(green + (int)(random.nextGaussian() * 20), 0, 255));
                         break;
 
-                    case 5: // Blue - Gaussian noise
+                    case 5: // Blue
                         int blue = genes.get(base + 5);
                         genes.set(base + 5, clamp(blue + (int)(random.nextGaussian() * 20), 0, 255));
                         break;
 
-                    case 6: // Alpha - keep in semi-transparent range
+                    case 6: // Alpha
                         int alpha = genes.get(base + 6);
                         genes.set(base + 6, clamp(alpha + random.nextInt(-15, 16), 20, 150));
                         break;
