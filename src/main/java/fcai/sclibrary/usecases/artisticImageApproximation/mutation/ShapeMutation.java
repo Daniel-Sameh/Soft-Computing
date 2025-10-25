@@ -7,9 +7,10 @@ import fcai.sclibrary.ga.operators.mutation.Mutation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class ShapeMutation implements Mutation<Integer> {
-    private final Random random = new Random();
+    private static final ThreadLocalRandom random = ThreadLocalRandom.current();
     private final int width;
     private final int height;
     private static final int GENES_PER_SHAPE = 7;
@@ -26,8 +27,13 @@ public class ShapeMutation implements Mutation<Integer> {
 
         int numShapes = genes.size() / GENES_PER_SHAPE;
 
+        boolean[] shouldMutate = new boolean[numShapes];
         for (int i = 0; i < numShapes; i++) {
-            if (random.nextDouble() < pm) {
+            shouldMutate[i] = random.nextDouble() < pm;
+        }
+
+        for (int i = 0; i < numShapes; i++) {
+            if (shouldMutate[i]) {
                 mutated = true;
                 int base = i * GENES_PER_SHAPE;
 
