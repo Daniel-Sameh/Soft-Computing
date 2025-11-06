@@ -12,7 +12,7 @@ public class ShapeMSE implements FitnessFunction<Integer> {
     private final List<Integer> target;
     private final int width;
     private final int height;
-    private static final int GENES_PER_SHAPE = 7;
+    private static final int GENES_PER_SHAPE = 9;
 
     public ShapeMSE(List<Integer> target, int width, int height) {
         this.target = target;
