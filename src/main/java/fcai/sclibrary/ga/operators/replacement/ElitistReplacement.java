@@ -33,6 +33,7 @@ public class ElitistReplacement<T extends Object> implements Replacement<T> {
         all.addAll(parent);
         all.addAll(new_ch);
 
+        all.parallelStream().forEach(Chromosome::getFitness);
         all.sort(Comparator.comparingDouble((Chromosome<T> c) -> c.getFitness()).reversed());
 
         List<Chromosome<T>> res = new ArrayList<>();

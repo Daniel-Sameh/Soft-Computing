@@ -72,16 +72,4 @@ public class NPointCrossover<T extends Number> implements Crossover<T> {
         Collections.sort(points);
         return points;
     }
-    private void setGenesByReflection(Chromosome<T> chromosome, List<T> newGenes) {
-        try {
-            Field field = chromosome.getClass().getDeclaredField("genes");
-            field.setAccessible(true);
-            field.set(chromosome, new ArrayList<>(newGenes));
-        } catch (Exception e) {
-            throw new RuntimeException(
-                    "Failed to set genes for chromosome of type: " + chromosome.getClass().getSimpleName(), e
-            );
-        }
-    }
-
 }

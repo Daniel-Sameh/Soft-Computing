@@ -17,9 +17,11 @@ import fcai.sclibrary.ga.operators.selection.SelectionStrategy;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Builder
+@Setter
 public class GAConfig<T extends Chromosome<N>, N extends Number> {
     private final int chromosomeSize;
     private final Range<N> range;
@@ -28,7 +30,7 @@ public class GAConfig<T extends Chromosome<N>, N extends Number> {
     private InfeasibleCheck<N> infeasibleCheck;
     @Builder.Default private final int populationSize = 100;
     @Builder.Default private final int generations = 1000;
-    @Builder.Default private final double mutationRate = 0.001;
+    @Builder.Default private double mutationRate = 0.001;
     @Builder.Default private final double crossoverRate = 0.8;
     @Builder.Default private final double upperLimit = 1.0;
     @Builder.Default private final double lowerLimit = 0.0;
