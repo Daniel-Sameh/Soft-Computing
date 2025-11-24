@@ -1,8 +1,13 @@
 package fcai.sclibrary.fuzzyLogic.core;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Setter
+@Getter
 public class Rule {
     private enum Operator {
         AND,
@@ -21,11 +26,17 @@ public class Rule {
     private List<Antecedent> antecedents;
     private List<Consequent> consequences;
 
-    public Rule(String ruleText) {
-        antecedents = new ArrayList<Antecedent>();
-        consequences = new ArrayList<Consequent>();
-
-
+    public Rule(List<Antecedent> antecedents, List<Consequent> consequences) {
+        this.antecedents = antecedents;
+        this.consequences = consequences;
     }
 
+
 }
+
+/*
+IF <FuzzyVariable1> IS <FuzzySet1>
+[AND/OR <FuzzyVariable2> IS <FuzzySet2> ...]
+THEN <FuzzyVariable3> IS <FuzzySet3>
+[AND <FuzzyVariable4> IS <FuzzySet4> ...]
+ */
