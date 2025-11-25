@@ -4,6 +4,7 @@ import fcai.sclibrary.fuzzyLogic.FuzzyLogicEvaluator;
 import fcai.sclibrary.fuzzyLogic.core.FuzzySet;
 import fcai.sclibrary.fuzzyLogic.core.FuzzyVariable;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +38,11 @@ public class DepressionTest {
 
         // 3. Load Rules
         try {
-            evaluator.createAllRules("src/main/java/fcai/sclibrary/usecases/MADRSdepressionTest/rules.txt");
+            InputStream rulesStream = DepressionTest.class.getResourceAsStream("/fcai/sclibrary/usecases/MADRSdepressionTest/rules.txt");
+            if (rulesStream == null) {
+                throw new RuntimeException("Rules file not found in classpath: /fcai/sclibrary/usecases/MADRSdepressionTest/rules.txt");
+            }
+            evaluator.createAllRulesFromStream(rulesStream);
             System.out.println("System Ready.");
         } catch (Exception e) {
             e.printStackTrace();

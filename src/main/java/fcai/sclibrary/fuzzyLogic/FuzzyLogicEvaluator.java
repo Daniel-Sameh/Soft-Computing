@@ -12,7 +12,10 @@ import fcai.sclibrary.fuzzyLogic.core.operators.FuzzyOperators;
 import fcai.sclibrary.fuzzyLogic.core.operators.StandardFuzzyOperators;
 import lombok.Builder;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -159,6 +162,52 @@ public class FuzzyLogicEvaluator {
                 System.out.println(" Consequent: " + consequent.getVar().getName()+" IS " +consequent.getOutSet().getName());
             }
             System.out.println(" Full Rule: \n\""+rule.getString()+"\"\n");
+        }
+    }
+
+    /**
+     * Load rules from an InputStream (e.g., from classpath resources).
+     * This is useful for JAR packaging where files are loaded from the classpath.
+     * @param inputStream the input stream to read rules from
+     */
+    public void createAllRulesFromStream(InputStream inputStream) {
+        if (inputStream == null) {
+            throw new IllegalArgumentException("Input stream cannot be null");
+        }
+
+        StringBuilder curRuleString = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            reader.lines().forEach(line -> {
+                String[] strings = line.split(" ");
+                if (strings.length == 0 || strings[0].isEmpty() || strings[0].charAt(0) == '#') {
+                    return;
+                }
+
+                if (strings.length < 4 || !strings[2].equalsIgnoreCase("IS")) {
+                    throw new IllegalArgumentException("Invalid rule format");
+                }
+
+                curRuleString.append(line).append("\n");
+
+                if (strings[0].equalsIgnoreCase("THEN")) {
+                    this.create(curRuleString.toString().trim());
+                    curRuleString.setLength(0);
+                }
+            });
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read rules from input stream", e);
+        }
+
+        for (int i = 0; i < rules.size(); i++) {
+            Rule rule = rules.get(i);
+            System.out.println("Rule " + (i + 1) + ":");
+            for (Rule.Antecedent antecedent : rule.getAntecedents()) {
+                System.out.println(" Antecedent: " + antecedent.getVar().getName() + " IS " + antecedent.getOutSet().getName() + " OP: " + antecedent.getOp());
+            }
+            for (Rule.Consequent consequent : rule.getConsequences()) {
+                System.out.println(" Consequent: " + consequent.getVar().getName() + " IS " + consequent.getOutSet().getName());
+            }
+            System.out.println(" Full Rule: \n\"" + rule.getString() + "\"\n");
         }
     }
 
