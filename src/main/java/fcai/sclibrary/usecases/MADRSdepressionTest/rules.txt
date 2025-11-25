@@ -1,0 +1,61 @@
+#Affective Assessment (Mood)
+IF Sadness IS Severe
+OR InabilityToFeel IS Severe
+THEN AffectiveScore IS Severe
+
+IF InnerTension IS Severe
+OR Sadness IS Mild
+THEN AffectiveScore IS Severe
+
+IF Sadness IS Mild
+AND InabilityToFeel IS Mild
+THEN AffectiveScore IS Moderate
+
+IF InnerTension IS Mild
+AND Sadness IS Normal
+THEN AffectiveScore IS Moderate
+
+IF Sadness IS Normal
+AND InabilityToFeel IS Normal
+AND InnerTension IS Normal
+THEN AffectiveScore IS Normal
+
+# Cognitive Assessment (Mind)
+IF SuicidalThoughts IS Severe
+THEN CognitiveScore IS Severe
+
+IF SuicidalThoughts IS Mild
+THEN CognitiveScore IS Severe
+
+IF Pessimism IS Severe
+OR Concentration IS Severe
+THEN CognitiveScore IS Severe
+
+IF Pessimism IS Mild
+AND Concentration IS Mild
+THEN CognitiveScore IS Moderate
+
+IF Pessimism IS Normal
+AND SuicidalThoughts IS Normal
+THEN CognitiveScore IS Normal
+
+# Aggregation to Determine Depression Severity
+IF CognitiveScore IS Severe
+OR AffectiveScore IS Severe
+THEN DepressionSeverity IS Severe
+
+IF CognitiveScore IS Moderate
+AND AffectiveScore IS Moderate
+THEN DepressionSeverity IS Moderate
+
+IF CognitiveScore IS Moderate
+AND AffectiveScore IS Normal
+THEN DepressionSeverity IS Mild
+
+IF CognitiveScore IS Normal
+AND AffectiveScore IS Moderate
+THEN DepressionSeverity IS Mild
+
+IF CognitiveScore IS Normal
+AND AffectiveScore IS Normal
+THEN DepressionSeverity IS Normal
