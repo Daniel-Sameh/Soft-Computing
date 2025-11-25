@@ -17,7 +17,7 @@ import java.util.Map;
 public class FuzzySet {
     private String type;
     private String name;
-    private List<Integer> indices;
+    private List<Double> indices;
 
     private Double value;
 
