@@ -1,5 +1,6 @@
 package fcai.sclibrary.fuzzyLogic.core;
 
+import fcai.sclibrary.fuzzyLogic.core.consequents.Consequent;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,7 +9,7 @@ import java.util.List;
 
 @Setter
 @Getter
-public class Rule {
+public class Rule<T extends Consequent> {
     public enum Operator {
         AND,
         OR,
@@ -21,16 +22,11 @@ public class Rule {
         FuzzySet outSet;
         Operator op;
     }
-    @Getter
-    @Setter
-    public class Consequent {
-        FuzzyVariable var;
-        FuzzySet outSet;
-    }
-    private List<Antecedent> antecedents;
-    private List<Consequent> consequences;
 
-    public Rule(List<Antecedent> antecedents, List<Consequent> consequences) {
+    private List<Antecedent> antecedents;
+    private List<T> consequences;
+
+    public Rule(List<Antecedent> antecedents, List<T> consequences) {
         this.antecedents = antecedents;
         this.consequences = consequences;
     }

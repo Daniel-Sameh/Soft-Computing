@@ -3,6 +3,8 @@ package fcai.sclibrary.fuzzyLogic.core.engine;
 import fcai.sclibrary.fuzzyLogic.core.FuzzySet;
 import fcai.sclibrary.fuzzyLogic.core.FuzzyVariable;
 import fcai.sclibrary.fuzzyLogic.core.Rule;
+import fcai.sclibrary.fuzzyLogic.core.consequents.Consequent;
+import fcai.sclibrary.fuzzyLogic.core.consequents.MamdanniConsequent;
 import fcai.sclibrary.fuzzyLogic.core.operators.FuzzyOperators;
 import fcai.sclibrary.fuzzyLogic.core.operators.StandardFuzzyOperators;
 import lombok.AllArgsConstructor;
@@ -18,17 +20,16 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MamdaniInferenceEngine implements InferenceEngine{
+public class MamdaniInferenceEngine{
     @Builder.Default
     private FuzzyOperators fuzzyOperators = new StandardFuzzyOperators();
 
     private List<Rule> rules;
 
-    @Override
     public List<FuzzyVariable> evaluate(List<FuzzyVariable> levelsOfMembership) {
         List<FuzzyVariable> result = new ArrayList<>();
 
-        for (Rule rule : rules) {
+        for (Rule<MamdanniConsequent> rule : rules) {
             double lastFuzzySetValue = 0;
             for(Rule.Antecedent antecedent : rule.getAntecedents()) {
                 if(antecedent.getOp().name().equals("NONE")){
@@ -62,7 +63,8 @@ public class MamdaniInferenceEngine implements InferenceEngine{
                     }
                 }
             }
-            for(Rule.Consequent consequent : rule.getConsequences()){
+
+            for(MamdanniConsequent consequent : rule.getConsequences()){
                 FuzzyVariable fuzzyVariable = consequent.getVar();
                 List<FuzzySet> fuzzySets = consequent.getVar().getFuzzySets();
                 FuzzySet fuzzySet = consequent.getOutSet();
