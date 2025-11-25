@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.security.KeyPair;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,4 +20,5 @@ public class FuzzySet {
     private List<Double> indices;
 
     private Double value;
+
 }
