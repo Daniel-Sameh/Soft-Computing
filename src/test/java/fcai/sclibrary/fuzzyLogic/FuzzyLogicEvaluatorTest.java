@@ -194,8 +194,8 @@ public class FuzzyLogicEvaluatorTest {
         evaluator.create(rule);
 
         List<Rule> rules = getRules();
-        // Should not throw, and rules list should remain unchanged or empty
-        assertTrue(rules == null || rules.isEmpty(), "Should not create rules from only comments");
+        // Should not throw, and rules list should be empty (no valid rules to parse)
+        assertTrue(rules.isEmpty(), "Should not create rules from only comments");
     }
 
     // ==================== Error Handling Tests ====================
