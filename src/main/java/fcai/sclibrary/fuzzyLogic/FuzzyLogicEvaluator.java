@@ -183,13 +183,13 @@ public class FuzzyLogicEvaluator {
                     return;
                 }
 
-                if (strings.length < 4 || !strings[2].equalsIgnoreCase("IS")) {
+                if (strings.length < 4 || !Objects.equals(strings[2], "IS")) {
                     throw new IllegalArgumentException("Invalid rule format");
                 }
 
                 curRuleString.append(line).append("\n");
 
-                if (strings[0].equalsIgnoreCase("THEN")) {
+                if (strings[0].equals("THEN")) {
                     this.create(curRuleString.toString().trim());
                     curRuleString.setLength(0);
                 }
