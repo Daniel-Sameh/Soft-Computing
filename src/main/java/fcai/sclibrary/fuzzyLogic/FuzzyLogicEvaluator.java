@@ -60,7 +60,6 @@ public class FuzzyLogicEvaluator {
                     case "THEN" -> {
                         // add last antecedent to rule
                         if (!antecedents.isEmpty()) {
-//                            antecedents.add(curAntecedent[0]);
                             currentRule[0] = new Rule();
                             currentRule[0].setAntecedents(new ArrayList<>(antecedents));
                         }

@@ -51,7 +51,7 @@ public class DepressionTest {
             try {
                 Map<FuzzyVariable, Double> inputs= new HashMap<>();
 
-                for (int i = 0; i < 7; i++) {
+                for (int i = 0; i < 6; i++) {
                     FuzzyVariable fuzzyVariable = variables.get(i);
                     System.out.print((i + 1) + ". " + fuzzyVariable.getName() + ": ");
                     // input number from 0 to 6
@@ -83,23 +83,13 @@ public class DepressionTest {
                     String option = System.console().readLine();
                     switch (option) {
                         case "1" -> {
-                            System.out.println("  Enter the new rule in the format: ");
-                            String s1 = System.console().readLine();
-                            String ruleString = s1;
-                            while (!s1.substring(0, 4).equalsIgnoreCase("THEN")) {
-                                s1 = System.console().readLine();
-                                ruleString += "\n" + s1;
-                            }
+                            String ruleString=InputRule();
                             evaluator.create(ruleString);
                         }
                         case "2" -> {
                             System.out.println("  Enter the rule ID to edit: ");
                             String ruleId = System.console().readLine();
-                            System.out.println("  Enter the new rule in the format: ");
-                            String s1 = System.console().readLine();
-                            String s2 = System.console().readLine();
-                            String s3 = System.console().readLine();
-                            String ruleString = s1 + "\n" + s2 + "\n" + s3;
+                            String ruleString=InputRule();
                             evaluator.edit(Integer.parseInt(ruleId), ruleString);
                         }
                         case "3" -> {
@@ -123,8 +113,6 @@ public class DepressionTest {
 
                 }
 
-
-
             }catch (Exception e){
                 ok = false;
                 e.printStackTrace();
@@ -132,35 +120,45 @@ public class DepressionTest {
         }
     }
 
+    private static String InputRule() {
+        System.out.println("  Enter the new rule in the format: ");
+        String s1 = System.console().readLine();
+        String ruleString = s1;
+        while (s1.length() >= 4 && !s1.substring(0, 4).equalsIgnoreCase("THEN")) {
+            s1 = System.console().readLine();
+            ruleString += "\n" + s1;
+        }
+        return ruleString;
+    }
+
     private static FuzzyVariable createInput(String name) {
         List<FuzzySet> sets = new ArrayList<>();
 
         // Normal
-        sets.add(createSet("Normal", "Trapezoid", List.of(0, 0, 1, 3)));
+        sets.add(createSet("Normal", "Trapezoid", List.of(0.0, 0.0, 1.0, 3.0)));
 
         // Mild
-        sets.add(createSet("Mild", "Triangular", List.of(1, 3, 5)));
+        sets.add(createSet("Mild", "Triangular", List.of(1.0, 3.0, 5.0)));
 
         // Severe
-        sets.add(createSet("Severe", "Trapezoid", List.of(3, 5, 6, 6)));
+        sets.add(createSet("Severe", "Trapezoid", List.of(3.0, 5.0, 6.0, 6.0)));
 
         return new FuzzyVariable(sets, name);
     }
-
 
     private static FuzzyVariable createOutput(String name, int max) {
         List<FuzzySet> sets = new ArrayList<>();
 
         // Standard MADRS Cutoffs approximated
-        sets.add(createSet("Normal", "Trapezoid", List.of(0, 0, 5, 10)));// Approx 0-6
-        sets.add(createSet("Mild", "Triangular", List.of(7, 13, 20)));   // Approx 7-19
-        sets.add(createSet("Moderate", "Triangular", List.of(15, 27, 40)));// Approx 20-34
-        sets.add(createSet("Severe", "Trapezoid", List.of(35, 60, 60, 60)));// Approx 35-60
+        sets.add(createSet("Normal", "Trapezoid", List.of(0.0, 0.0, 5.0, 10.0)));// Approx 0-6
+        sets.add(createSet("Mild", "Triangular", List.of(7.0, 13.0, 20.0)));   // Approx 7-19
+        sets.add(createSet("Moderate", "Triangular", List.of(15.0, 27.0, 40.0)));// Approx 20-34
+        sets.add(createSet("Severe", "Trapezoid", List.of(35.0, 60.0, 60.0, 60.0)));// Approx 35-60
 
         return new FuzzyVariable(sets, name);
     }
 
-    private static FuzzySet createSet(String name, String type, List<Integer> indices) {
+    private static FuzzySet createSet(String name, String type, List<Double> indices) {
         Double centroidValue = 0.0;
 
         if (indices.size() == 4) { // Trapezoidal [a, b, c, d]
