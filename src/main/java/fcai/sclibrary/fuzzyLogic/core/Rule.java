@@ -9,17 +9,21 @@ import java.util.List;
 @Setter
 @Getter
 public class Rule {
-    private enum Operator {
+    public enum Operator {
         AND,
         OR,
         NONE
     }
-    private class Antecedent {
+    @Getter
+    @Setter
+    public class Antecedent {
         FuzzyVariable var;
         FuzzySet outSet;
         Operator op;
     }
-    private class Consequent {
+    @Getter
+    @Setter
+    public class Consequent {
         FuzzyVariable var;
         FuzzySet outSet;
     }

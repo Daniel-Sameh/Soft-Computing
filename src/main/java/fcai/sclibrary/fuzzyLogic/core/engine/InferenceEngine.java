@@ -6,5 +6,5 @@ import java.util.List;
 import java.util.Map;
 
 public interface InferenceEngine {
-    public List<Double> evaluate(List<FuzzyVariable> levelsOfMembership);
+    public List<FuzzyVariable> evaluate(List<FuzzyVariable> levelsOfMembership);
 }
