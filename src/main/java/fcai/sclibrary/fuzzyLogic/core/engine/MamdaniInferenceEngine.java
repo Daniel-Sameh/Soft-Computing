@@ -7,10 +7,7 @@ import fcai.sclibrary.fuzzyLogic.core.consequents.Consequent;
 import fcai.sclibrary.fuzzyLogic.core.consequents.MamdanniConsequent;
 import fcai.sclibrary.fuzzyLogic.core.operators.FuzzyOperators;
 import fcai.sclibrary.fuzzyLogic.core.operators.StandardFuzzyOperators;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +15,7 @@ import java.util.Map;
 
 @Builder
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class MamdaniInferenceEngine{
@@ -30,50 +28,41 @@ public class MamdaniInferenceEngine{
         List<FuzzyVariable> result = new ArrayList<>();
 
         for (Rule<MamdanniConsequent> rule : rules) {
-            double lastFuzzySetValue = 0;
+            if (!rule.isEnabled()) continue;
+
+            double lastFuzzySetValue = 0.0;
             for(Rule.Antecedent antecedent : rule.getAntecedents()) {
-                if(antecedent.getOp().name().equals("NONE")){
-                    int idxVar = levelsOfMembership.indexOf(antecedent.getVar());
-                    if(idxVar != -1){
-                        List<FuzzySet> fuzzySets = levelsOfMembership.get(idxVar).getFuzzySets();
-                        int idxSet = fuzzySets.indexOf(antecedent.getOutSet());
-                        if(idxSet != -1){
-                            lastFuzzySetValue = fuzzySets.get(idxSet).getValue();
-                        }
-                    }
+                int idxVar = levelsOfMembership.indexOf(antecedent.getVar());
+                if (idxVar == -1) continue;
+
+                List<FuzzySet> fuzzySets = levelsOfMembership.get(idxVar).getFuzzySets();
+                int idxSet = fuzzySets.indexOf(antecedent.getOutSet());
+                if (idxSet == -1) continue;
+
+                double val = fuzzySets.get(idxSet).getValue();
+
+                switch (antecedent.getOp()) {
+                    case NONE -> lastFuzzySetValue = val;
+                    case AND -> lastFuzzySetValue = fuzzyOperators.AND(lastFuzzySetValue, val);
+                    case OR -> lastFuzzySetValue = fuzzyOperators.OR(lastFuzzySetValue, val);
                 }
-                else if(antecedent.getOp().name().equals("AND")) {
-                    int idxVar = levelsOfMembership.indexOf(antecedent.getVar());
-                    if (idxVar != -1) {
-                        List<FuzzySet> fuzzySets = levelsOfMembership.get(idxVar).getFuzzySets();
-                        int idxSet = fuzzySets.indexOf(antecedent.getOutSet());
-                        if (idxSet != -1) {
-                            lastFuzzySetValue = fuzzyOperators.AND(lastFuzzySetValue, fuzzySets.get(idxSet).getValue());
-                        }
-                    }
-                }
-                else if(antecedent.getOp().name().equals("OR")) {
-                    int idxVar = levelsOfMembership.indexOf(antecedent.getVar());
-                    if(idxVar != -1){
-                        List<FuzzySet> fuzzySets = levelsOfMembership.get(idxVar).getFuzzySets();
-                        int idxSet = fuzzySets.indexOf(antecedent.getOutSet());
-                        if(idxSet != -1){
-                            lastFuzzySetValue = fuzzyOperators.OR(lastFuzzySetValue, fuzzySets.get(idxSet).getValue());
-                        }
-                    }
-                }
+
             }
 
             for(MamdanniConsequent consequent : rule.getConsequences()){
                 FuzzyVariable fuzzyVariable = consequent.getVar();
-                List<FuzzySet> fuzzySets = consequent.getVar().getFuzzySets();
-                FuzzySet fuzzySet = consequent.getOutSet();
-                fuzzySet.setValue(lastFuzzySetValue);
-                int idx = fuzzySets.indexOf(fuzzySet);
+                List<FuzzySet> fuzzySets = fuzzyVariable.getFuzzySets();
+                FuzzySet out = consequent.getOutSet();
+
+                int idx = fuzzySets.indexOf(out);
                 if(idx != -1){
-                    fuzzySets.set(idx, fuzzySet);
+                    // aggregate
+                    double existing = fuzzySets.get(idx).getValue();
+                    double aggregated = fuzzyOperators.OR(existing, lastFuzzySetValue);
+                    fuzzySets.get(idx).setValue(aggregated);
                 }
                 fuzzyVariable.setFuzzySets(fuzzySets);
+
                 int found = result.indexOf(fuzzyVariable);
                 if(found == -1){
                     result.add(fuzzyVariable);

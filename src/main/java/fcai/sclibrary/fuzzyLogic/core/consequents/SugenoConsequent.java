@@ -24,4 +24,9 @@ public class SugenoConsequent extends Consequent {
         }
         return z;
     }
+
+    @Override
+    public void print(){
+        System.out.println(" SugenoConsequent: Variable = " + this.getVariableName() + ", Coefficients = " + coefficients.toString() + ", Constant = " + constant);
+    }
 }
