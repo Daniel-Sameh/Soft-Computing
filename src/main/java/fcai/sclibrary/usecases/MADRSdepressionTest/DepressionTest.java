@@ -46,7 +46,7 @@ public class DepressionTest {
         boolean ok = true;
         while (ok) {
             System.out.println("======================================");
-            System.out.println(" Answer the following questions (0-6):");
+            System.out.println(" Answer the following questions (0-5):");
             System.out.println("======================================");
             try {
                 Map<FuzzyVariable, Double> inputs= new HashMap<>();
@@ -57,14 +57,14 @@ public class DepressionTest {
                     // input number from 0 to 6
                     String input = System.console().readLine();
                     double value = Double.parseDouble(input);
-                    if (value < 0 || value > 6) {
-                        throw new Exception("Invalid input. Please enter a number between 0 and 6.");
+                    if (value < 0 || value > 5) {
+                        throw new Exception("Invalid input. Please enter a number between 0 and 5.");
                     }
                     inputs.put(fuzzyVariable, value);
                 }
                 double result = evaluator.evaluate(inputs);
                 System.out.println("======================================");
-                System.out.println(" Depression Severity Score: " + result);
+                System.out.println(" Depression Severity Score: " + result+" / 60");
                 System.out.println("======================================");
 
                 boolean next = true;

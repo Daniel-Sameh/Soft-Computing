@@ -298,19 +298,19 @@ public class FuzzyLogicEvaluator {
             }
         }
 
-        /// Fuzzify
+        // Fuzzify
         fuzzifier.Fuzzify(inputs);
-        /// Inference
+        // Inference and Aggregation
         List<FuzzyVariable> inferenceOutput= new ArrayList<>();
         if (inferenceType.equalsIgnoreCase("Mamdani")){
             inferenceOutput= mamdaniInferenceEngine.evaluate(variables);
-            System.out.println("inferenceOutput: ");
-            for (FuzzyVariable var : inferenceOutput) {
-                System.out.println(" Variable: " + var.getName());
-                for (FuzzySet set : var.getFuzzySets()) {
-                    System.out.println("  Set: " + set.getName() + " Value: " + set.getValue());
-                }
-            }
+//            System.out.println("inferenceOutput: ");
+//            for (FuzzyVariable var : inferenceOutput) {
+//                System.out.println(" Variable: " + var.getName());
+//                for (FuzzySet set : var.getFuzzySets()) {
+//                    System.out.println("  Set: " + set.getName() + " Value: " + set.getValue());
+//                }
+//            }
         }else if (inferenceType.equalsIgnoreCase("Sugeno")){
             Map<String, Double> crispInputs = new HashMap<>();
             for (Map.Entry<FuzzyVariable, Double> entry : inputs.entrySet()) {
@@ -318,9 +318,8 @@ public class FuzzyLogicEvaluator {
             }
             return sugenoInferenceEngine.evaluate(variables, crispInputs);
         }
-        /// Aggregate
-        /// Defuzzify
 
+        // Defuzzify
         return defuzzifier.defuzzify(inferenceOutput.getLast());
     }
 
