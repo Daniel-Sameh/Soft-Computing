@@ -29,7 +29,7 @@ public class DepressionTest {
         variables.add(createOutput("CognitiveScore", 10));
         variables.add(createOutput("DepressionSeverity", 60));
 
-        // 2. Configure Evaluator
+        // Create Evaluator
         FuzzyLogicEvaluator evaluator = FuzzyLogicEvaluator.builder().build();
         evaluator.setVariables(variables);
 //        printVariables(variables);

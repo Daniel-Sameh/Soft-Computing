@@ -6,16 +6,14 @@ import fcai.sclibrary.fuzzyLogic.core.Rule;
 import fcai.sclibrary.fuzzyLogic.core.consequents.SugenoConsequent;
 import fcai.sclibrary.fuzzyLogic.core.operators.FuzzyOperators;
 import fcai.sclibrary.fuzzyLogic.core.operators.StandardFuzzyOperators;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 import java.util.Map;
 
 @Builder
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class SugenoInferenceEngine {

@@ -1,0 +1,61 @@
+# Affective Assessment (Mood) - Testing Linear Combinations
+IF Sadness IS Severe
+OR InabilityToFeel IS Severe
+THEN AffectiveScore = 1.5*Sadness + 1.0*InabilityToFeel
+
+IF InnerTension IS Severe
+OR Sadness IS Mild
+THEN AffectiveScore = -1.2*InnerTension - 0.8*Sadness
+
+IF Sadness IS Mild
+AND InabilityToFeel IS Mild
+THEN AffectiveScore = 1.0*Sadness + 1.0*InabilityToFeel
+
+IF InnerTension IS Mild
+AND Sadness IS Normal
+THEN AffectiveScore = 5
+
+IF Sadness IS Normal
+AND InabilityToFeel IS Normal
+AND InnerTension IS Normal
+THEN AffectiveScore = 1
+
+# Cognitive Assessment (Mind) - Testing Safety Overrides (Constants) vs Calculation
+IF SuicidalThoughts IS Severe
+THEN CognitiveScore = 10
+
+IF SuicidalThoughts IS Mild
+THEN CognitiveScore = 10
+
+IF Pessimism IS Severe
+OR Concentration IS Severe
+THEN CognitiveScore = 1.0*Pessimism + 1.0*Concentration
+
+IF Pessimism IS Mild
+AND Concentration IS Mild
+THEN CognitiveScore = 0.5*Pessimism + 0.5*Concentration
+
+IF Pessimism IS Normal
+AND SuicidalThoughts IS Normal
+THEN CognitiveScore = 1
+
+# Aggregation - Testing Complex Weighting
+IF CognitiveScore IS Severe
+OR AffectiveScore IS Severe
+THEN DepressionSeverity = 3.0*CognitiveScore + 3.0*AffectiveScore
+
+IF CognitiveScore IS Moderate
+AND AffectiveScore IS Moderate
+THEN DepressionSeverity = 2.0*CognitiveScore + 2.0*AffectiveScore
+
+IF CognitiveScore IS Moderate
+AND AffectiveScore IS Normal
+THEN DepressionSeverity = 1.5*CognitiveScore + 1.0*AffectiveScore
+
+IF CognitiveScore IS Normal
+AND AffectiveScore IS Moderate
+THEN DepressionSeverity = 1.0*CognitiveScore + 1.5*AffectiveScore
+
+IF CognitiveScore IS Normal
+AND AffectiveScore IS Normal
+THEN DepressionSeverity = 5

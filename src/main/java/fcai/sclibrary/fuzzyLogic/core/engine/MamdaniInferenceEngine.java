@@ -7,10 +7,7 @@ import fcai.sclibrary.fuzzyLogic.core.consequents.Consequent;
 import fcai.sclibrary.fuzzyLogic.core.consequents.MamdanniConsequent;
 import fcai.sclibrary.fuzzyLogic.core.operators.FuzzyOperators;
 import fcai.sclibrary.fuzzyLogic.core.operators.StandardFuzzyOperators;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +15,7 @@ import java.util.Map;
 
 @Builder
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class MamdaniInferenceEngine{
@@ -30,6 +28,8 @@ public class MamdaniInferenceEngine{
         List<FuzzyVariable> result = new ArrayList<>();
 
         for (Rule<MamdanniConsequent> rule : rules) {
+            if (!rule.isEnabled()) continue;
+
             double lastFuzzySetValue = 0;
             for(Rule.Antecedent antecedent : rule.getAntecedents()) {
                 if(antecedent.getOp().name().equals("NONE")){

@@ -11,7 +11,9 @@ import java.util.List;
 
 @Setter
 @Getter
+@NoArgsConstructor
 public class Rule<T extends Consequent> {
+    private String string;
     public enum Operator {
         AND,
         OR,
