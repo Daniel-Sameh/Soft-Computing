@@ -1,10 +1,13 @@
 package fcai.sclibrary.fuzzyLogic.core.engine;
 
 import fcai.sclibrary.fuzzyLogic.core.FuzzyVariable;
+import fcai.sclibrary.fuzzyLogic.core.Rule;
+import fcai.sclibrary.fuzzyLogic.core.operators.FuzzyOperators;
 
 import java.util.List;
-import java.util.Map;
 
 public interface InferenceEngine {
-    public List<FuzzyVariable> evaluate(List<FuzzyVariable> levelsOfMembership);
+    public Object evaluate(List<FuzzyVariable> levelsOfMembership);
+    public void setRules(List<Rule> rules);
+    public void setFuzzyOperators(FuzzyOperators fuzzyOperators);
 }

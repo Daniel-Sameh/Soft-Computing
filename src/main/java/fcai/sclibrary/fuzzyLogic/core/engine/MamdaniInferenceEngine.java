@@ -18,12 +18,13 @@ import java.util.Map;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MamdaniInferenceEngine{
+public class MamdaniInferenceEngine implements InferenceEngine{
     @Builder.Default
     private FuzzyOperators fuzzyOperators = new StandardFuzzyOperators();
 
     private List<Rule> rules;
 
+    @Override
     public List<FuzzyVariable> evaluate(List<FuzzyVariable> levelsOfMembership) {
         List<FuzzyVariable> result = new ArrayList<>();
 

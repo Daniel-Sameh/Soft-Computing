@@ -16,13 +16,14 @@ import java.util.Map;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SugenoInferenceEngine {
+public class SugenoInferenceEngine implements  InferenceEngine {
     @Builder.Default
     private FuzzyOperators fuzzyOperators = new StandardFuzzyOperators();
-
+    private Map<String, Double> crispInputValues;
     private List<Rule> rules;
 
-    public double evaluate(List<FuzzyVariable> levelsOfMembership, Map<String, Double> crispInputValues) {
+    @Override
+    public Double evaluate(List<FuzzyVariable> levelsOfMembership) {
         double numerator = 0.0;
         double denominator = 0.0;
 

@@ -31,8 +31,9 @@ public class FuzzyLogicEvaluator {
     @Builder.Default private FuzzyOperators operators = new StandardFuzzyOperators();
 
     @Builder.Default private Fuzzifier fuzzifier = new Fuzzifier();
-    private final MamdaniInferenceEngine mamdaniInferenceEngine = new MamdaniInferenceEngine();
-    private final SugenoInferenceEngine sugenoInferenceEngine = new SugenoInferenceEngine();
+//    private final MamdaniInferenceEngine mamdaniInferenceEngine = new MamdaniInferenceEngine();
+//    private final SugenoInferenceEngine sugenoInferenceEngine = new SugenoInferenceEngine();
+    @Builder.Default private InferenceEngine inferenceEngine = new MamdaniInferenceEngine();
     @Builder.Default private Defuzzifier defuzzifier = new WeightedAvgDefuzzifier();
 
 
@@ -264,13 +265,8 @@ public class FuzzyLogicEvaluator {
             throw new RuntimeException(e);
         }
 
-        if (ruleType.equalsIgnoreCase("Mamdani")){
-            mamdaniInferenceEngine.setRules(this.rules);
-        }else{
-            sugenoInferenceEngine.setRules(this.rules);
-        }
-        mamdaniInferenceEngine.setFuzzyOperators(this.operators);
-        sugenoInferenceEngine.setFuzzyOperators(this.operators);
+        inferenceEngine.setRules(this.rules);
+        inferenceEngine.setFuzzyOperators(this.operators);
 
         // Print all rules
         for (int i = 0; i < rules.size(); i++) {
@@ -300,23 +296,23 @@ public class FuzzyLogicEvaluator {
 
         // Fuzzify
         fuzzifier.Fuzzify(inputs);
+
         // Inference and Aggregation
         List<FuzzyVariable> inferenceOutput= new ArrayList<>();
         if (inferenceType.equalsIgnoreCase("Mamdani")){
-            inferenceOutput= mamdaniInferenceEngine.evaluate(variables);
-//            System.out.println("inferenceOutput: ");
-//            for (FuzzyVariable var : inferenceOutput) {
-//                System.out.println(" Variable: " + var.getName());
-//                for (FuzzySet set : var.getFuzzySets()) {
-//                    System.out.println("  Set: " + set.getName() + " Value: " + set.getValue());
-//                }
-//            }
+            inferenceOutput= (List<FuzzyVariable>)inferenceEngine.evaluate(variables);
+
         }else if (inferenceType.equalsIgnoreCase("Sugeno")){
+            // Making input map for sugeno engine
             Map<String, Double> crispInputs = new HashMap<>();
             for (Map.Entry<FuzzyVariable, Double> entry : inputs.entrySet()) {
                 crispInputs.put(entry.getKey().getName(), entry.getValue());
             }
-            return sugenoInferenceEngine.evaluate(variables, crispInputs);
+            SugenoInferenceEngine engine = (SugenoInferenceEngine) inferenceEngine;
+            engine.setCrispInputValues(crispInputs);
+
+            // Sugeno returns the final output directly
+            return (double)engine.evaluate(variables);
         }
 
         // Defuzzify
