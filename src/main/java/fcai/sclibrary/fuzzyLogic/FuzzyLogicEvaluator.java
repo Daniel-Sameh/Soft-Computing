@@ -251,11 +251,11 @@ public class FuzzyLogicEvaluator {
                 curRuleString.append(line).append("\n");
 
                 if (strings[0].equals("THEN")){
-                    this.create(curRuleString.toString().trim());
-//                    if (ruleType.equalsIgnoreCase("Mamdani"))
-//                    else if (ruleType.equalsIgnoreCase("Sugeno"))
-//                        this.createSugeno(curRuleString.toString().trim());
-//                    else throw new IllegalArgumentException("Invalid inference/rule type (Mamdani/Sugeno)");
+                    if (ruleType.equalsIgnoreCase("Mamdani"))
+                        this.create(curRuleString.toString().trim());
+                    else if (ruleType.equalsIgnoreCase("Sugeno"))
+                        this.createSugeno(curRuleString.toString().trim());
+                    else throw new IllegalArgumentException("Invalid inference/rule type (Mamdani/Sugeno)");
 
                     curRuleString.setLength(0);
                 }
