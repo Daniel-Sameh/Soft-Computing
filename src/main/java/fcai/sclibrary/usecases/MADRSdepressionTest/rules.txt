@@ -1,0 +1,111 @@
+# Affective Assessment (Mood)
+# Severe if ANY two core affective symptoms are Severe OR one Severe + one Moderate
+IF Sadness IS Severe
+OR InabilityToFeel IS Severe
+OR InnerTension IS Severe
+THEN AffectiveScore IS Severe
+
+IF Sadness IS Severe
+AND InabilityToFeel IS Mild
+THEN AffectiveScore IS Severe
+
+IF InnerTension IS Severe
+AND Sadness IS Mild
+THEN AffectiveScore IS Severe
+
+IF Sadness IS Mild
+AND InabilityToFeel IS Mild
+THEN AffectiveScore IS Moderate
+
+IF InnerTension IS Severe
+AND Sadness IS Mild
+THEN AffectiveScore IS Moderate
+
+IF Sadness IS Mild
+AND InabilityToFeel IS Mild
+THEN AffectiveScore IS Mild
+
+IF InnerTension IS Mild
+AND Sadness IS Normal
+THEN AffectiveScore IS Mild
+
+IF InnerTension IS Mild
+THEN AffectiveScore IS Mild
+
+IF InabilityToFeel IS Mild
+THEN AffectiveScore IS Mild
+
+# All Normal -> Normal
+IF Sadness IS Normal
+AND InabilityToFeel IS Normal
+AND InnerTension IS Normal
+THEN AffectiveScore IS Normal
+
+# Cognitive Assessment (Mind)
+# Severe only on clearly Severe states or combination of two Moderates
+IF SuicidalThoughts IS Severe
+THEN CognitiveScore IS Severe
+
+IF Pessimism IS Severe
+OR Concentration IS Severe
+THEN CognitiveScore IS Severe
+
+IF Pessimism IS Severe
+AND Concentration IS Mild
+THEN CognitiveScore IS Severe
+
+# Moderate from Mild suicidal thoughts or one Moderate symptom
+IF SuicidalThoughts IS Mild
+THEN CognitiveScore IS Moderate
+
+IF Pessimism IS Mild
+THEN CognitiveScore IS Moderate
+
+IF Concentration IS Mild
+THEN CognitiveScore IS Moderate
+
+# Mild when isolated Mild cognitive symptom
+IF Pessimism IS Mild
+THEN CognitiveScore IS Mild
+
+IF Concentration IS Mild
+THEN CognitiveScore IS Mild
+
+# Normal baseline
+IF Pessimism IS Normal
+AND SuicidalThoughts IS Normal
+AND Concentration IS Normal
+THEN CognitiveScore IS Normal
+
+# Aggregation to Determine Depression Severity
+# Severe if any subsystem Severe
+IF CognitiveScore IS Severe
+OR AffectiveScore IS Severe
+THEN DepressionSeverity IS Severe
+
+# Moderate if both Moderate or one Moderate + one Mild
+IF CognitiveScore IS Moderate
+AND AffectiveScore IS Moderate
+THEN DepressionSeverity IS Moderate
+
+IF CognitiveScore IS Moderate
+AND AffectiveScore IS Mild
+THEN DepressionSeverity IS Moderate
+
+IF CognitiveScore IS Mild
+AND AffectiveScore IS Moderate
+THEN DepressionSeverity IS Moderate
+
+# Mild if one Mild and the other Normal
+IF CognitiveScore IS Mild
+AND AffectiveScore IS Normal
+THEN DepressionSeverity IS Mild
+
+IF CognitiveScore IS Normal
+AND AffectiveScore IS Mild
+THEN DepressionSeverity IS Mild
+
+# Normal only when both Normal
+IF CognitiveScore IS Normal
+AND AffectiveScore IS Normal
+THEN DepressionSeverity IS Normal
