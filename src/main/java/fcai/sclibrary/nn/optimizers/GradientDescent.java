@@ -1,4 +1,4 @@
 package fcai.sclibrary.nn.optimizers;
 
-public class GradientDescent {
+public class GradientDescent implements Optimizer{
 }

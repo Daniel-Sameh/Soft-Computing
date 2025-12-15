@@ -1,4 +1,4 @@
 package fcai.sclibrary.nn.initialization;
 
-public class RandomUniform {
+public class RandomUniform implements WeightInitializer{
 }

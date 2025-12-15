@@ -1,4 +1,4 @@
 package fcai.sclibrary.nn.loss;
 
-public class CrossEntropy {
+public class CrossEntropy implements LossFunction {
 }

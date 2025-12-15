@@ -1,4 +1,4 @@
 package fcai.sclibrary.nn.loss;
 
-public class MeanSquaredError {
+public class MeanSquaredError implements LossFunction {
 }

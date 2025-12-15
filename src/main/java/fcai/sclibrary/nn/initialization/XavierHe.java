@@ -1,4 +1,4 @@
 package fcai.sclibrary.nn.initialization;
 
-public class XavierHe {
+public class XavierHe implements WeightInitializer{
 }
