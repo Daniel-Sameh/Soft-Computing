@@ -11,6 +11,14 @@ public class InputLayer implements Layer{
     private Tensor inputData;
     private Tensor outputData;
 
+    private int inputSize;
+    private int outputSize;
+
+    public InputLayer(int inputSize){
+        this.inputSize = inputSize;
+        this.outputSize = inputSize;
+    }
+
     @Override
     public Tensor forward(Tensor input) {
         return null;
@@ -24,5 +32,20 @@ public class InputLayer implements Layer{
     @Override
     public void updateParameters(Optimizer optimizer) {
 
+    }
+
+    @Override
+    public Tensor getInputData() {
+        return inputData;
+    }
+
+    @Override
+    public Tensor getOutputData() {
+        return outputData;
+    }
+
+    @Override
+    public void build(int inputSize) {
+        this.inputSize = inputSize;
     }
 }

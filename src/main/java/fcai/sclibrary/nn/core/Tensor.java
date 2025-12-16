@@ -12,6 +12,18 @@ public class Tensor {
     private int rows;
     private int cols;
 
+    public Tensor(int rows, int cols) {
+        this.rows = rows;
+        this.cols = cols;
+        this.data = new double[rows][cols];
+    }
+
+    public Tensor(double[][] data) {
+        this.data = data;
+        this.rows = data.length;
+        this.cols = data[0].length;
+    }
+
     public Tensor dot(Tensor a){
         return null;
     }
