@@ -2,46 +2,43 @@ package fcai.sclibrary.nn.layers;
 
 import fcai.sclibrary.nn.core.Tensor;
 import fcai.sclibrary.nn.optimizers.Optimizer;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@AllArgsConstructor
 @Getter
-public class InputLayer implements Layer{
-    private Tensor inputData;
-    private Tensor outputData;
+public class InputLayer implements Layer {
 
+    private Tensor input;
     private int inputSize;
-    private int outputSize;
 
-    public InputLayer(int inputSize){
+    public InputLayer(int inputSize) {
         this.inputSize = inputSize;
-        this.outputSize = inputSize;
     }
 
     @Override
     public Tensor forward(Tensor input) {
-        return null;
+        this.input = input;
+        return input;
     }
 
     @Override
     public Tensor backward(Tensor gradOutput) {
-        return null;
+        return gradOutput;
     }
 
     @Override
     public void updateParameters(Optimizer optimizer) {
-
+        // No parameters to update
+        return;
     }
 
     @Override
     public Tensor getInputData() {
-        return inputData;
+        return input;
     }
 
     @Override
     public Tensor getOutputData() {
-        return outputData;
+        return null;
     }
 
     @Override
