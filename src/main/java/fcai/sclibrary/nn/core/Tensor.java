@@ -1,10 +1,12 @@
 package fcai.sclibrary.nn.core;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.Setter;
 
 @AllArgsConstructor
 @Setter
+@Getter
 public class Tensor {
     private double[][] data;
     private int rows;
@@ -28,5 +30,9 @@ public class Tensor {
 
     public Tensor transpose(){
         return null;
+    }
+
+    public double get(int i,int j) {
+        return data[i][j];
     }
 }
