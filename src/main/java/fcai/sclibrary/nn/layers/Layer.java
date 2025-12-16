@@ -7,4 +7,7 @@ public interface Layer {
     Tensor forward(Tensor input);
     Tensor backward(Tensor gradOutput);
     void updateParameters(Optimizer optimizer);
+    Tensor getInputData();
+    Tensor getOutputData();
+    void build(int inputSize);
 }

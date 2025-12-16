@@ -20,7 +20,7 @@ public class NetworkConfig {
     private List<Layer> layers;
 
     @Builder.Default
-    private WeightInitializer weightInitializer= new RandomUniform();
+    private WeightInitializer weightInitializer= new RandomUniform(-0.1, 0.1);
 
     @Builder.Default
     private LossFunction loss = new MeanSquaredError();
