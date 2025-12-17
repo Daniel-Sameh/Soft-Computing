@@ -1,7 +1,10 @@
 package fcai.sclibrary.usecases.EgyptHousingPricesPrediction.Dataset;
 
+import lombok.Getter;
+
 import java.util.List;
 
+@Getter
 public class DataRow {
     private List<Object> values;
 

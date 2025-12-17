@@ -47,10 +47,10 @@ public class Xavier implements WeightInitializer{
             limit = Math.sqrt(6.0 / (in + out));
         }
 
-        double[][] w = new double[out][in];
+        double[][] w = new double[in][out];
         // Range is [-limit, limit]
-        for (int i = 0; i < out; i++) {
-            for (int j = 0; j < in; j++) {
+        for (int i = 0; i < in; i++) {
+            for (int j = 0; j < out; j++) {
                 w[i][j] = (rand.nextDouble() * 2 * limit)-limit;
             }
         }

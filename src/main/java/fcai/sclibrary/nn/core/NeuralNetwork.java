@@ -48,9 +48,55 @@ public class NeuralNetwork {
             currentLayer = networkConfig.getWeightInitializer().initialize(currentLayer, trainingConfig.isUseBias());
         }
     }
-    public void fit(Tensor X, Tensor y) {
+    public void train(Tensor X, Tensor y) {
+        LossFunction lossFunction = networkConfig.getLoss();
+        Optimizer optimizer = networkConfig.getOptimizer();
 
+        List<Layer> layers =  networkConfig.getLayers();
+
+        for (int epoch = 0; epoch < trainingConfig.getEpochs(); epoch++) {
+            Tensor output = X;
+            for (Layer layer : layers) {
+                output = layer.forward(output);
+            }
+            double lossValue = lossFunction.computeError(output, y);
+            System.out.println("Epoch: " + epoch);
+            System.out.println("Loss: " + lossValue);
+            int rows = output.getRows();
+            int cols = output.getCols();
+
+            double[][] grad = new double[rows][cols];
+            double[][] p = output.getData();
+            double[][] t = y.getData();
+
+            int n = rows * cols;
+
+            for (int i = 0; i < rows; i++) {
+                for (int j = 0; j < cols; j++) {
+                    grad[i][j] = 2.0 * (p[i][j] - t[i][j]) / n;
+                }
+            }
+            Tensor gradient = new Tensor(grad);
+
+            for (int i = layers.size() - 1; i > 0; i--) {
+                gradient = layers.get(i).backward(gradient);
+                layers.get(i).updateParameters(optimizer);
+            }
+        }
     }
 
+    public Tensor predict(Tensor X) {
+        List<Layer> layers = networkConfig.getLayers();
+        Tensor output = X;
+        for (Layer layer : layers) {
+            output = layer.forward(output);
+        }
+        return output;
+    }
+
+    public double evaluateMSE(Tensor X, Tensor yTrue) {
+        Tensor yPred = predict(X);
+        return networkConfig.getLoss().computeError(yPred, yTrue);
+    }
 
 }

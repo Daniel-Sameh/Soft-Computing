@@ -116,7 +116,9 @@ public class DenseLayer implements Layer {
         }
 
         weights = optimizer.update(weights, weightGradients);
-        biases  = optimizer.update(biases, biasGradients);
+        if(biases != null){
+            biases  = optimizer.update(biases, biasGradients);
+        }
     }
 
     @Override
