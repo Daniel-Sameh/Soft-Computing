@@ -9,5 +9,6 @@ public interface Layer {
     void updateParameters(Optimizer optimizer);
     Tensor getInputData();
     Tensor getOutputData();
+    int getOutputSize();
     void build(int inputSize);
 }

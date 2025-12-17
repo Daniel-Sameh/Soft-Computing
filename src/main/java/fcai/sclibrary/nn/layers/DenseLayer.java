@@ -5,7 +5,11 @@ import fcai.sclibrary.nn.activations.Sigmoid;
 import fcai.sclibrary.nn.core.Tensor;
 import fcai.sclibrary.nn.initialization.WeightInitializer;
 import fcai.sclibrary.nn.optimizers.Optimizer;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class DenseLayer implements Layer {
 
     private Tensor input;
@@ -123,6 +127,11 @@ public class DenseLayer implements Layer {
     @Override
     public Tensor getOutputData() {
         return output;
+    }
+
+    @Override
+    public int getOutputSize() {
+        return outputSize;
     }
 
     @Override

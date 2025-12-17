@@ -17,4 +17,7 @@ public class TrainingConfig {
     @Builder.Default
     private double learningRate=0.01;
 
+    @Builder.Default
+    private boolean useBias=true;
+
 }

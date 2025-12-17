@@ -1,7 +1,11 @@
 package fcai.sclibrary.nn.optimizers;
 
 import fcai.sclibrary.nn.core.Tensor;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@NoArgsConstructor
+@Setter
 public class GradientDescent implements Optimizer{
     private double learningRate;
     public GradientDescent(double learningRate){

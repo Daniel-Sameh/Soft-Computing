@@ -42,6 +42,11 @@ public class InputLayer implements Layer {
     }
 
     @Override
+    public int getOutputSize() {
+        return inputSize;
+    }
+
+    @Override
     public void build(int inputSize) {
         this.inputSize = inputSize;
     }
