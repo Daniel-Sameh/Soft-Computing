@@ -14,7 +14,8 @@ public class MeanSquaredError implements LossFunction {
                 error+=diff*diff;
             }
         }
-        return error/2;
+        // MSE=(1/2N)*sum(error²), N= number of samples (rows)
+        return error / (2.0 * rows);
     }
 
 }

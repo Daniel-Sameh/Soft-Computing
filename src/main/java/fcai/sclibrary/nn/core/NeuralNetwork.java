@@ -54,14 +54,21 @@ public class NeuralNetwork {
 
         List<Layer> layers =  networkConfig.getLayers();
 
+        System.out.println("Rows="+X.getRows()+", Cols="+X.getCols());
+        System.out.println("Rows="+y.getRows()+", Cols="+y.getCols());
+
         for (int epoch = 0; epoch < trainingConfig.getEpochs(); epoch++) {
             Tensor output = X;
             for (Layer layer : layers) {
                 output = layer.forward(output);
             }
             double lossValue = lossFunction.computeError(output, y);
-            System.out.println("Epoch: " + epoch);
-            System.out.println("Loss: " + lossValue);
+
+            // Print progress every 50 epochs or at the end
+            if (epoch % 50 == 0 || epoch == trainingConfig.getEpochs() - 1) {
+                System.out.println("Epoch: " + epoch + " | Loss: " + lossValue);
+            }
+
             int rows = output.getRows();
             int cols = output.getCols();
 
@@ -69,11 +76,11 @@ public class NeuralNetwork {
             double[][] p = output.getData();
             double[][] t = y.getData();
 
-            int n = rows * cols;
-
+            // Gradient: MSE/predicted = (1/N)*(predicted - actual)
+            // N = number of samples (rows)
             for (int i = 0; i < rows; i++) {
                 for (int j = 0; j < cols; j++) {
-                    grad[i][j] = 2.0 * (p[i][j] - t[i][j]) / n;
+                    grad[i][j] = (p[i][j] - t[i][j]) / rows;
                 }
             }
             Tensor gradient = new Tensor(grad);

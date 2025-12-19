@@ -1,5 +1,6 @@
 package fcai.sclibrary.nn.core;
 
+import fcai.sclibrary.nn.exceptions.DimensionMismatchException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,7 +27,7 @@ public class Tensor {
 
     public Tensor dot(Tensor a) {
         if (this.cols != a.rows) {
-            throw new IllegalArgumentException(
+            throw new DimensionMismatchException(
                     "Dot product dimension mismatch: (" +
                             this.rows + "x" + this.cols + ") · (" +
                             a.rows + "x" + a.cols + ")"
