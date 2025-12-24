@@ -264,13 +264,12 @@ public class Main {
 
         List<Layer> layers = new ArrayList<>();
         layers.add(new InputLayer(inputSize));
-        layers.add(new DenseLayer(64, new ReLU()));
-        layers.add(new DenseLayer(32, new ReLU()));
         layers.add(new DenseLayer(16, new ReLU()));
-        layers.add(new DenseLayer(1, new Sigmoid())); // Sigmoid to constrain output to [0,1]
+        layers.add(new DenseLayer(8, new ReLU()));
+        layers.add(new DenseLayer(1, new Sigmoid()));
 
         TrainingConfig trainingConfig = TrainingConfig.builder()
-                .epochs(1000)
+                .epochs(500)
                 .learningRate(0.3)
                 .useBias(true)
                 .build();
